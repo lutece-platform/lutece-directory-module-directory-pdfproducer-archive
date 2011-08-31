@@ -40,6 +40,7 @@ import fr.paris.lutece.plugins.directory.modules.pdfproducerarchive.business.zip
 import fr.paris.lutece.plugins.directory.modules.pdfproducerarchive.business.zipbasket.ZipBasketAction;
 import fr.paris.lutece.plugins.directory.modules.pdfproducerarchive.business.zipbasket.ZipBasketActionHome;
 import fr.paris.lutece.plugins.directory.modules.pdfproducerarchive.business.zipbasket.ZipBasketHome;
+import fr.paris.lutece.plugins.directory.modules.pdfproducerarchive.utils.ConstantsStatusZip;
 import fr.paris.lutece.plugins.directory.modules.pdfproducerarchive.utils.FilesUtils;
 import fr.paris.lutece.plugins.directory.service.DirectoryPlugin;
 import fr.paris.lutece.plugins.directory.utils.DirectoryUtils;
@@ -210,7 +211,7 @@ public class DirectoryManageZipBasketService
      */
     private static void changeZipBasketStatusToInProgress( Plugin plugin, int nIdZipBasket )
     {
-        ZipBasketHome.changeZipBasketStatus( plugin, nIdZipBasket, DirectoryUtils.PARAMATER_STATUS_IN_PROGRESS );
+        ZipBasketHome.changeZipBasketStatus( plugin, nIdZipBasket, ConstantsStatusZip.PARAMATER_STATUS_IN_PROGRESS );
     }
 
     /**
@@ -221,7 +222,7 @@ public class DirectoryManageZipBasketService
      */
     private static void changeZipBasketStatusToFinished( Plugin plugin, int nIdZipBasket, String strUrl )
     {
-        ZipBasketHome.changeZipBasketStatus( plugin, nIdZipBasket, DirectoryUtils.PARAMATER_STATUS_FINISHED );
+        ZipBasketHome.changeZipBasketStatus( plugin, nIdZipBasket, ConstantsStatusZip.PARAMATER_STATUS_FINISHED );
         ZipBasketHome.changeZipBasketUrl( plugin, nIdZipBasket, strUrl );
     }
 
@@ -232,7 +233,7 @@ public class DirectoryManageZipBasketService
      */
     private static void changeZipBasketStatusToFailed( Plugin plugin, int nIdZipBasket )
     {
-        ZipBasketHome.changeZipBasketStatus( plugin, nIdZipBasket, DirectoryUtils.PARAMATER_STATUS_FAILED );
+        ZipBasketHome.changeZipBasketStatus( plugin, nIdZipBasket, ConstantsStatusZip.PARAMATER_STATUS_FAILED );
     }
 
     /**
@@ -245,8 +246,8 @@ public class DirectoryManageZipBasketService
 
         for ( ZipBasket zipBasket : listZipBasket )
         {
-            if ( zipBasket.getZipStatus(  ).equals( DirectoryUtils.PARAMATER_STATUS_IN_PROGRESS ) ||
-                    zipBasket.getZipStatus(  ).equals( DirectoryUtils.PARAMATER_STATUS_PENDING ) )
+            if ( zipBasket.getZipStatus(  ).equals( ConstantsStatusZip.PARAMATER_STATUS_IN_PROGRESS ) ||
+                    zipBasket.getZipStatus(  ).equals( ConstantsStatusZip.PARAMATER_STATUS_PENDING ) )
             {
                 String strArchiveStatus = _archiveClientService.informationArchive( zipBasket.getArchiveItemKey(  ) );
 

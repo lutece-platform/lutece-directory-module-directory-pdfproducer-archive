@@ -33,6 +33,14 @@
  */
 package fr.paris.lutece.plugins.directory.modules.pdfproducerarchive.web;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+
+import org.apache.commons.lang.StringUtils;
+
 import fr.paris.lutece.plugins.directory.business.Directory;
 import fr.paris.lutece.plugins.directory.business.DirectoryHome;
 import fr.paris.lutece.plugins.directory.business.Record;
@@ -41,10 +49,10 @@ import fr.paris.lutece.plugins.directory.modules.pdfproducer.service.DirectoryPD
 import fr.paris.lutece.plugins.directory.modules.pdfproducerarchive.business.zipbasket.ZipBasket;
 import fr.paris.lutece.plugins.directory.modules.pdfproducerarchive.business.zipbasket.ZipBasketAction;
 import fr.paris.lutece.plugins.directory.modules.pdfproducerarchive.service.DirectoryManageZipBasketService;
+import fr.paris.lutece.plugins.directory.modules.pdfproducerarchive.utils.ConstantsStatusZip;
 import fr.paris.lutece.plugins.directory.service.DirectoryResourceIdService;
 import fr.paris.lutece.plugins.directory.utils.DirectoryUtils;
 import fr.paris.lutece.portal.service.admin.AccessDeniedException;
-import fr.paris.lutece.portal.service.i18n.I18nService;
 import fr.paris.lutece.portal.service.message.AdminMessage;
 import fr.paris.lutece.portal.service.message.AdminMessageService;
 import fr.paris.lutece.portal.service.rbac.RBACService;
@@ -55,14 +63,6 @@ import fr.paris.lutece.portal.web.admin.PluginAdminPageJspBean;
 import fr.paris.lutece.util.html.HtmlTemplate;
 import fr.paris.lutece.util.string.StringUtil;
 import fr.paris.lutece.util.url.UrlItem;
-
-import org.apache.commons.lang.StringUtils;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.servlet.http.HttpServletRequest;
 
 
 /**
@@ -150,22 +150,22 @@ public class ZipBasketJspBean extends PluginAdminPageJspBean
         {
             for ( ZipBasket zipBasket : listZipBasket )
             {
-                if ( zipBasket.getZipStatus(  ).equals( DirectoryUtils.PARAMATER_STATUS_PENDING ) )
+                if ( zipBasket.getZipStatus(  ).equals( ConstantsStatusZip.PARAMATER_STATUS_PENDING ) )
                 {
                     zipBasket.setListZipBasketAction( listZipBasketActionPending );
                 }
 
-                if ( zipBasket.getZipStatus(  ).equals( DirectoryUtils.PARAMATER_STATUS_IN_PROGRESS ) )
+                if ( zipBasket.getZipStatus(  ).equals( ConstantsStatusZip.PARAMATER_STATUS_IN_PROGRESS ) )
                 {
                     zipBasket.setListZipBasketAction( listZipBasketActionInProgress );
                 }
 
-                if ( zipBasket.getZipStatus(  ).equals( DirectoryUtils.PARAMATER_STATUS_FINISHED ) )
+                if ( zipBasket.getZipStatus(  ).equals( ConstantsStatusZip.PARAMATER_STATUS_FINISHED ) )
                 {
                     zipBasket.setListZipBasketAction( listZipBasketActionFinished );
                 }
 
-                if ( zipBasket.getZipStatus(  ).equals( DirectoryUtils.PARAMATER_STATUS_FAILED ) )
+                if ( zipBasket.getZipStatus(  ).equals( ConstantsStatusZip.PARAMATER_STATUS_FAILED ) )
                 {
                     zipBasket.setListZipBasketAction( listZipBasketActionFailed );
                 }
@@ -318,7 +318,7 @@ public class ZipBasketJspBean extends PluginAdminPageJspBean
 
         for ( ZipBasket zipBasket : listZipBasket )
         {
-            if ( !zipBasket.getZipStatus(  ).equals( DirectoryUtils.PARAMATER_STATUS_FINISHED ) )
+            if ( !zipBasket.getZipStatus(  ).equals( ConstantsStatusZip.PARAMATER_STATUS_FINISHED ) )
             {
                 bCheckAllFileZipped = false;
             }
