@@ -1,0 +1,71 @@
+<div class="content-box">
+	<h2> #i18n{module.directory.pdfproducerarchive.manage_directory.basket.title}<#if directory?exists>: '${directory.title}'</#if></h2>
+	<div class="content-box-content">
+		<#if list_zipbasket?has_content>
+			<table name="results_list" id="results_list">
+				<tr>
+					<th>
+						#i18n{module.directory.pdfproducerarchive.manage_directory.basket.manage.zip.name}
+					</th>
+					<th>
+						#i18n{module.directory.pdfproducerarchive.manage_directory.basket.manage.zip.status}
+					</th>		
+					<th>
+						#i18n{module.directory.pdfproducerarchive.manage_directory.basket.manage.zip.actions}
+					</th>	
+				</tr>				
+					<#list list_zipbasket as zip>
+						<tr>
+							<td>
+								${zip.zipName}
+							</td>
+							<td>
+								<#if zip.zipStatus == '0'>
+									#i18n{module.directory.pdfproducerarchive.manage_directory.basket.manage.zip.status.pending}
+								</#if>
+								<#if zip.zipStatus == '1'>
+									#i18n{module.directory.pdfproducerarchive.manage_directory.basket.manage.zip.status.inprogress}
+								</#if>	
+								<#if zip.zipStatus == '2'>
+									#i18n{module.directory.pdfproducerarchive.manage_directory.basket.manage.zip.status.finished}
+								</#if>
+								<#if zip.zipStatus == '3'>
+									#i18n{module.directory.pdfproducerarchive.manage_directory.basket.manage.zip.status.failed}
+								</#if>									
+							</td>
+							<td>
+								<#if zip.listZipBasketAction?has_content>
+									<#list zip.listZipBasketAction as action>
+										<#if action.permission != 'VISUALISATION_ZIP' || zip.idRecord != -1 >
+											<#if action.permission == 'DOWNLOAD_ZIP' && zip.zipUrl?exists>										
+												<a href="${zip.zipUrl}">
+											<#else>
+												<a href="${action.url}?id_zipbasket=${zip.idZip}&id_directory=${idDirectory}&id_directory_record=${zip.idRecord}">
+											</#if> 										
+										  		<img src="${action.iconUrl}" alt="${action.name}" title="${action.description}">
+										  	</a>
+										</#if>
+									</#list>
+								</#if>
+							</td>							
+						</tr>
+					</#list>
+			</table>
+		<#else>
+			Votre panier est vide
+		</#if>
+	</div>
+</div>
+<#if list_zipbasket?has_content>
+<div class="content-box">
+	<h2>Export tous les fichiers Zip</h2>
+	<div class="content-box-content">
+		<div class="highlight-box">
+			<form action="jsp/admin/plugins/directory/modules/pdfproducer/archive/basket/ConfirmExportAllZip.jsp" method="post">
+				<input type="hidden" value="${idDirectory}" name="id_directory">
+				<input class="button" type="submit" value="Exporter" name="export_search_result">			
+			</form>
+		</div>
+	</div>
+</div>
+</#if>

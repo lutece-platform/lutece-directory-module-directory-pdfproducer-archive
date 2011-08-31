@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="ISO-8859-1" standalone="no"?><plug-in>
+
+    <!-- Plugin Informations -->
+    <name>directory-pdfproducer-archive</name>
+    <class>fr.paris.lutece.plugins.directory.modules.pdfproducerarchive.service.DirectoryPDFProducerArchivePlugin</class>
+    <version>1.0.0</version>
+    <documentation/>
+    <installation/>
+    <changes/>
+    <user-guide/>
+    <description></description>
+    <provider></provider>
+    <provider-url>http://lutece.paris.fr</provider-url>
+    <icon-url>images/admin/skin/plugins/archive/archive.png</icon-url>
+    <copyright>Copyright 2001-2011 Mairie de Paris</copyright>
+    <core-version-dependency>
+        <min-core-version>2.4.1</min-core-version>
+        <max-core-version/>
+    </core-version-dependency>
+    <db-pool-required>1</db-pool-required>
+    
+    <!-- Daemons -->
+    <daemons>
+    	<daemon>
+			<daemon-id>zipBasketCheckStatus</daemon-id>
+			<daemon-name>
+				directory.daemon.zipBasketCheckStatus.name
+			</daemon-name>
+			<daemon-description>
+				directory.daemon.zipBasketCheckStatus.description
+			</daemon-description>
+			<daemon-class>
+				fr.paris.lutece.plugins.directory.modules.pdfproducerarchive.service.ZipBasketCheckStatus
+			</daemon-class>
+		</daemon>
+	</daemons>
+	
+</plug-in>
