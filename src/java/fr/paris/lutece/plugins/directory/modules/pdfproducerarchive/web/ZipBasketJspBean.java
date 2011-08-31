@@ -190,6 +190,7 @@ public class ZipBasketJspBean extends PluginAdminPageJspBean
         int nIdDirectoryRecord = DirectoryUtils.convertStringToInt( strIdDirectoryRecord );
         Record record = RecordHome.findByPrimaryKey( nIdDirectoryRecord, getPlugin(  ) );
 
+        /*
         if ( ( record == null ) ||
                 !RBACService.isAuthorized( Directory.RESOURCE_TYPE,
                     Integer.toString( record.getDirectory(  ).getIdDirectory(  ) ),
@@ -197,7 +198,7 @@ public class ZipBasketJspBean extends PluginAdminPageJspBean
         {
             throw new AccessDeniedException(  );
         }
-
+        */
         UrlItem url = new UrlItem( JSP_DO_ADD_ZIP_TO_BASKET );
         url.addParameter( PARAMETER_ID_DIRECTORY_RECORD, nIdDirectoryRecord );
 
