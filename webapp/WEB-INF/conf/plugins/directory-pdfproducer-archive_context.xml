@@ -17,10 +17,12 @@
 	<!--  Zip Basket  -->
     <bean id="directoryZipBasketDAO" class="fr.paris.lutece.plugins.directory.modules.pdfproducerarchive.business.zipbasket.ZipBasketDAO" />
 	<bean id="directoryZipBasketActionDAO" class="fr.paris.lutece.plugins.directory.modules.pdfproducerarchive.business.zipbasket.ZipBasketActionDAO" />
-	<bean id="directory-pdfproducer-archive.directoryManageZipBasketService" class="fr.paris.lutece.plugins.directory.modules.pdfproducerarchive.service.DirectoryManageZipBasketService" >
-   		<property name="archiveClientService" ref="archive-client.archiveClientLocalService"/>
-    </bean> 
+	<bean id="directory-pdfproducer-archive.directoryManageZipBasketService" class="fr.paris.lutece.plugins.directory.modules.pdfproducerarchive.service.DirectoryManageZipBasketService" />
     
+    <bean id="directory-pdfproducer-archive.zipUtils" class="fr.paris.lutece.plugins.directory.modules.pdfproducerarchive.service.ZipService">
+    	<property name="archiveClientService" ref="archive-client.archiveClientLocalService"/>
+    </bean>
+        
 </beans>
 
  	

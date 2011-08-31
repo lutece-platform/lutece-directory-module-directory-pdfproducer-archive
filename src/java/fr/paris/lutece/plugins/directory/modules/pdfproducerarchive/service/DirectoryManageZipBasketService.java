@@ -33,9 +33,15 @@
  */
 package fr.paris.lutece.plugins.directory.modules.pdfproducerarchive.service;
 
-import fr.paris.lutece.plugins.archiveclient.service.archive.IArchiveClientService;
+import java.io.File;
+import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
+
+import org.apache.commons.lang.StringUtils;
+
 import fr.paris.lutece.plugins.archiveclient.service.util.ArchiveClientConstants;
-import fr.paris.lutece.plugins.directory.modules.pdfproducer.utils.PDFUtils;
+import fr.paris.lutece.plugins.directory.modules.pdfproducer.service.DirectoryPDFProducerPlugin;
 import fr.paris.lutece.plugins.directory.modules.pdfproducerarchive.business.zipbasket.ZipBasket;
 import fr.paris.lutece.plugins.directory.modules.pdfproducerarchive.business.zipbasket.ZipBasketAction;
 import fr.paris.lutece.plugins.directory.modules.pdfproducerarchive.business.zipbasket.ZipBasketActionHome;
@@ -43,21 +49,10 @@ import fr.paris.lutece.plugins.directory.modules.pdfproducerarchive.business.zip
 import fr.paris.lutece.plugins.directory.modules.pdfproducerarchive.utils.ConstantsStatusZip;
 import fr.paris.lutece.plugins.directory.modules.pdfproducerarchive.utils.FilesUtils;
 import fr.paris.lutece.plugins.directory.service.DirectoryPlugin;
-import fr.paris.lutece.plugins.directory.utils.DirectoryUtils;
 import fr.paris.lutece.portal.service.plugin.Plugin;
 import fr.paris.lutece.portal.service.plugin.PluginService;
-import fr.paris.lutece.portal.service.util.AppLogService;
+import fr.paris.lutece.portal.service.spring.SpringContextService;
 import fr.paris.lutece.portal.service.util.AppPropertiesService;
-
-import org.apache.commons.lang.StringUtils;
-
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-
-import java.util.List;
-
-import javax.servlet.http.HttpServletRequest;
 
 
 /**
@@ -72,7 +67,7 @@ public class DirectoryManageZipBasketService
     public static final String PROPERTY_ZIP_NAME_REPOSITORY = "directory.zipbasket.name_zip_repository";
     public static final String EXTENSION_FILE_ZIP = ".zip";
     public static final String EXTENSION_FILE_PDF = ".pdf";
-    private IArchiveClientService _archiveClientService;
+    //private IArchiveClientService _archiveClientService;
 
     /**
      * this method builds different repository to stock files and generate a PDF and a zip file of this repository
@@ -89,42 +84,13 @@ public class DirectoryManageZipBasketService
     {
         if ( !ZipBasketHome.existsZipBasket( nIdAdminUser, plugin, nIdDirectory, nIdRecord ) )
         {
-            String strPathFilesGenerate = FilesUtils.builNamePathBasket( nIdAdminUser, nIdDirectory ) + File.separator +
-                strName;
-            String strPathZipGenerate = FilesUtils.builNamePathBasket( nIdAdminUser, nIdDirectory ) + File.separator +
-                AppPropertiesService.getProperty( PROPERTY_ZIP_NAME_REPOSITORY );
-
-            FilesUtils.createTemporyZipDirectory( strPathFilesGenerate );
-            FilesUtils.createTemporyZipDirectory( strPathZipGenerate );
-
-            FileOutputStream os;
-
-            try
+        	int nARchiveItemKey = getZipService().doGeneratePDFAndZipWithoutConfig(request, strName, nIdAdminUser, nIdDirectory );
+            if ( nARchiveItemKey == -1 )
             {
-                os = new FileOutputStream( new File( strPathFilesGenerate + "/" + strName + EXTENSION_FILE_PDF ) );
-                PDFUtils.doCreateDocumentPDF( request, strName, os );
+             	return false;
             }
-            catch ( FileNotFoundException e )
-            {
-                AppLogService.error( e );
-            }
-
-            FilesUtils.getAllFilesRecorded( request, strPathFilesGenerate );
-
-            try
-            {
-                int nARchiveItemKey = _archiveClientService.generateArchive( strPathFilesGenerate, strPathZipGenerate,
-                        strName + EXTENSION_FILE_ZIP, ArchiveClientConstants.ARCHIVE_TYPE_ZIP );
-                ZipBasketHome.addZipBasket( strName, nIdAdminUser, plugin, nIdDirectory, nIdRecord, nARchiveItemKey );
-
-                return true;
-            }
-            catch ( Exception e )
-            {
-                AppLogService.error( e );
-
-                return false;
-            }
+            ZipBasketHome.addZipBasket( strName, nIdAdminUser, plugin, nIdDirectory, nIdRecord, nARchiveItemKey );            
+            return true;
         }
         else
         {
@@ -132,7 +98,7 @@ public class DirectoryManageZipBasketService
         }
     }
 
-    /**
+	/**
      * This method load all element in basket by id admin user for a specific directory
      * @param plugin plugin
      * @param nIdAdminUser id of admin user
@@ -153,41 +119,23 @@ public class DirectoryManageZipBasketService
      */
     public boolean deleteZipBasket( Plugin plugin, int nIdZipBasket, String strIdRecord )
     {
+    	updateZipBasketStatus(  );
         ZipBasket zipbasket = ZipBasketHome.loadZipBasket( plugin, nIdZipBasket );
+        int nArchiveItemKey = zipbasket.getArchiveItemKey(  ) ;
+        int nIdAdminUser = zipbasket.getIdAdminUser(  ) ;
+        int nIdDirectory = zipbasket.getIdDirectory(  ) ;
+        String zipName = zipbasket.getZipName(  ) ;
 
-        String strArchiveStatus = _archiveClientService.informationArchive( zipbasket.getArchiveItemKey(  ) );
-
-        if ( !strArchiveStatus.equals( ARCHIVE_STATE_USED ) )
+        if( getZipService().doDeleteZip( strIdRecord, nArchiveItemKey, nIdAdminUser, nIdDirectory, zipName ) )
         {
-            String strPathFilesGenerate = FilesUtils.builNamePathBasket( zipbasket.getIdAdminUser(  ),
-                    zipbasket.getIdDirectory(  ) ) + File.separator + zipbasket.getZipName(  );
-            String strPathZipGenerate = FilesUtils.builNamePathBasket( zipbasket.getIdAdminUser(  ),
-                    zipbasket.getIdDirectory(  ) ) + File.separator +
-                AppPropertiesService.getProperty( PROPERTY_ZIP_NAME_REPOSITORY );
-
-            if ( !strIdRecord.equals( "-1" ) )
-            {
-                FilesUtils.cleanTemporyZipDirectory( strPathFilesGenerate );
-                FilesUtils.cleanTemporyZipDirectory( strPathZipGenerate + File.separator + zipbasket.getZipName(  ) +
-                    EXTENSION_FILE_ZIP );
-            }
-            else
-            {
-                FilesUtils.cleanTemporyZipDirectory( strPathFilesGenerate + File.separator + zipbasket.getZipName(  ) +
-                    EXTENSION_FILE_ZIP );
-            }
-
-            _archiveClientService.removeArchive( zipbasket.getArchiveItemKey(  ) );
-            ZipBasketHome.deleteZipBasket( plugin, nIdZipBasket );
-
-            return true;
+        	ZipBasketHome.deleteZipBasket( plugin, nIdZipBasket );
+        	return true ;
         }
         else
         {
-            return false;
+        	return false ;
         }
     }
-
     /**
      * This method delete multi ZipBasket
      * @param plugin plugin
@@ -249,7 +197,7 @@ public class DirectoryManageZipBasketService
             if ( zipBasket.getZipStatus(  ).equals( ConstantsStatusZip.PARAMATER_STATUS_IN_PROGRESS ) ||
                     zipBasket.getZipStatus(  ).equals( ConstantsStatusZip.PARAMATER_STATUS_PENDING ) )
             {
-                String strArchiveStatus = _archiveClientService.informationArchive( zipBasket.getArchiveItemKey(  ) );
+                String strArchiveStatus = getZipService().getStatutZip( zipBasket.getArchiveItemKey() );
 
                 if ( strArchiveStatus.equals( ARCHIVE_STATE_USED ) )
                 {
@@ -267,7 +215,7 @@ public class DirectoryManageZipBasketService
 
                 if ( strArchiveStatus.equals( ARCHIVE_STATE_FINAL ) )
                 {
-                    String strUrl = _archiveClientService.getDownloadUrl( zipBasket.getArchiveItemKey(  ) );
+                    String strUrl = getZipService().getUrlZip( zipBasket.getArchiveItemKey(  ) );
 
                     if ( StringUtils.isNotBlank( strUrl ) )
                     {
@@ -297,7 +245,7 @@ public class DirectoryManageZipBasketService
     {
         String strPathZipGenerate = FilesUtils.builNamePathBasket( nIdAdminUser, nIdDirectory );
 
-        int nARchiveItemKey = _archiveClientService.generateArchive( strPathZipGenerate + File.separator +
+        int nARchiveItemKey = getZipService().doBasicZip( strPathZipGenerate + File.separator +
                 AppPropertiesService.getProperty( PROPERTY_ZIP_NAME_REPOSITORY ), strPathZipGenerate,
                 strName + EXTENSION_FILE_ZIP, ArchiveClientConstants.ARCHIVE_TYPE_ZIP );
         ZipBasketHome.addZipBasket( strName, nIdAdminUser, plugin, nIdDirectory, -1, nARchiveItemKey );
@@ -313,13 +261,13 @@ public class DirectoryManageZipBasketService
     {
         return ZipBasketActionHome.selectActionsByZipBasketState( nState, plugin );
     }
-
+    
     /**
-     * Method to set _archiveClientService
-     * @param archiveClientService archiveClientService
+     * Method to get ZipService
+     * @return ZipService
      */
-    public void setArchiveClientService( IArchiveClientService archiveClientService )
+    private static ZipService getZipService()
     {
-        this._archiveClientService = archiveClientService;
+    	return (ZipService) SpringContextService.getPluginBean( DirectoryPDFProducerPlugin.PLUGIN_NAME  , "directory-pdfproducer-archive.zipUtils" );
     }
 }

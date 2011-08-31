@@ -130,7 +130,7 @@ public final class FilesUtils
      * @param request request
      * @param strTempDirectoryExtract the temporary directory for extraction
      */
-    public static void getAllFilesRecorded( HttpServletRequest request, String strTempDirectoryExtract )
+    public static void getAllFilesRecorded( HttpServletRequest request, String strTempDirectoryExtract , List<Integer> listIdEntryConfig )
     {
         Plugin plugin = PluginService.getPlugin( DirectoryPlugin.PLUGIN_NAME );
         AdminUser adminUser = AdminUserService.getAdminUser( request );
@@ -168,12 +168,20 @@ public final class FilesUtils
             {
                 for ( IEntry child : entry.getChildren(  ) )
                 {
-                    doExtractFiles( strTempDirectoryExtract, plugin, nIdRecord, listEntry, child );
+                	if ( ( listIdEntryConfig.isEmpty(  ) ||
+                            listIdEntryConfig.contains( Integer.valueOf( child.getIdEntry(  ) ) ) ) )
+                    {
+                		doExtractFiles( strTempDirectoryExtract, plugin, nIdRecord, listEntry, child );
+                    }
                 }
             }
             else
             {
-                doExtractFiles( strTempDirectoryExtract, plugin, nIdRecord, listEntry, entry );
+            	if ( ( listIdEntryConfig.isEmpty(  ) ||
+                        listIdEntryConfig.contains( Integer.valueOf( entry.getIdEntry(  ) ) ) ) )
+                {
+            		doExtractFiles( strTempDirectoryExtract, plugin, nIdRecord, listEntry, entry );
+                }
             }
         }
     }
