@@ -49,8 +49,8 @@ import fr.paris.lutece.plugins.directory.modules.pdfproducer.service.DirectoryPD
 import fr.paris.lutece.plugins.directory.modules.pdfproducerarchive.business.zipbasket.ZipBasket;
 import fr.paris.lutece.plugins.directory.modules.pdfproducerarchive.business.zipbasket.ZipBasketAction;
 import fr.paris.lutece.plugins.directory.modules.pdfproducerarchive.service.DirectoryManageZipBasketService;
+import fr.paris.lutece.plugins.directory.modules.pdfproducerarchive.service.DirectoryPDFProducerArchiveResourceIdService;
 import fr.paris.lutece.plugins.directory.modules.pdfproducerarchive.utils.ConstantsStatusZip;
-import fr.paris.lutece.plugins.directory.service.DirectoryResourceIdService;
 import fr.paris.lutece.plugins.directory.utils.DirectoryUtils;
 import fr.paris.lutece.portal.service.admin.AccessDeniedException;
 import fr.paris.lutece.portal.service.message.AdminMessage;
@@ -189,16 +189,15 @@ public class ZipBasketJspBean extends PluginAdminPageJspBean
         String strIdDirectoryRecord = request.getParameter( PARAMETER_ID_DIRECTORY_RECORD );
         int nIdDirectoryRecord = DirectoryUtils.convertStringToInt( strIdDirectoryRecord );
         Record record = RecordHome.findByPrimaryKey( nIdDirectoryRecord, getPlugin(  ) );
-
-        /*
+        
         if ( ( record == null ) ||
-                !RBACService.isAuthorized( Directory.RESOURCE_TYPE,
+                !RBACService.isAuthorized( DirectoryPDFProducerArchiveResourceIdService.RESOURCE_TYPE,
                     Integer.toString( record.getDirectory(  ).getIdDirectory(  ) ),
-                    DirectoryResourceIdService.PERMISSION_GENERATE_ZIP, getUser(  ) ) )
+                    DirectoryPDFProducerArchiveResourceIdService.PERMISSION_GENERATE_ZIP, getUser(  ) ) )
         {
             throw new AccessDeniedException(  );
         }
-        */
+        
         UrlItem url = new UrlItem( JSP_DO_ADD_ZIP_TO_BASKET );
         url.addParameter( PARAMETER_ID_DIRECTORY_RECORD, nIdDirectoryRecord );
 

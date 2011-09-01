@@ -19,7 +19,7 @@ public class DirectoryPDFProducerArchiveResourceIdService extends ResourceIdServ
     public static final String PERMISSION_GENERATE_ZIP = "ADDZIPBASKET";
     
     /** Permission for mylutece user visualisation */
-    private static final String RESOURCE_TYPE = "DIRECTORY_PDFPRODUCER_ARCHIVE_TYPE";
+    public static final String RESOURCE_TYPE = "DIRECTORY_PDFPRODUCER_ARCHIVE_TYPE";
     private static final String PROPERTY_LABEL_GENERATE_ZIP = "module.directory.pdfproducerarchive.permission.label.generate_zip";
 	
 	@Override
