@@ -55,6 +55,7 @@ import fr.paris.lutece.portal.service.util.AppPropertiesService;
 import fr.paris.lutece.util.httpaccess.HttpAccess;
 import fr.paris.lutece.util.httpaccess.HttpAccessException;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 
 import java.io.File;
@@ -197,25 +198,23 @@ public final class FilesUtils
     private static void doExtractFiles( String strTempDirectoryExtract, Plugin plugin, int nIdRecord,
         List<IEntry> listEntry, IEntry entry )
     {
-        if ( entry.isShownInExport(  ) )
+        
+        for ( RecordField recordField : DirectoryUtils.getMapIdEntryListRecordField( listEntry, nIdRecord, plugin )
+                                                      .get( String.valueOf( entry.getIdEntry(  ) ) ) )
         {
-            for ( RecordField recordField : DirectoryUtils.getMapIdEntryListRecordField( listEntry, nIdRecord, plugin )
-                                                          .get( String.valueOf( entry.getIdEntry(  ) ) ) )
+            String strTempPathExtract = strTempDirectoryExtract.concat( File.separator + entry.getTitle(  ) );
+
+            if ( recordField.getFile(  ) != null )
             {
-                String strTempPathExtract = strTempDirectoryExtract.concat( File.separator + entry.getTitle(  ) );
+                createTemporyZipDirectory( strTempPathExtract );
+                doExtracFile( plugin, recordField, strTempPathExtract );
+            }
 
-                if ( recordField.getFile(  ) != null )
-                {
-                    createTemporyZipDirectory( strTempPathExtract );
-                    doExtracFile( plugin, recordField, strTempPathExtract );
-                }
-
-                if ( entry instanceof fr.paris.lutece.plugins.directory.business.EntryTypeDownloadUrl &&
-                        StringUtils.isNotBlank( recordField.getValue(  ) ) )
-                {
-                    createTemporyZipDirectory( strTempPathExtract );
-                    doDownloadUrl( recordField.getValue(  ), strTempPathExtract );
-                }
+            if ( entry instanceof fr.paris.lutece.plugins.directory.business.EntryTypeDownloadUrl &&
+                    StringUtils.isNotBlank( recordField.getValue(  ) ) )
+            {
+                createTemporyZipDirectory( strTempPathExtract );
+                doDownloadUrl( recordField.getValue(  ), strTempPathExtract );
             }
         }
     }
@@ -228,9 +227,10 @@ public final class FilesUtils
      */
     private static void doExtracFile( Plugin plugin, RecordField recordField, String strTempDirectoryExtract )
     {
+    	FileOutputStream out = null;
         try
         {
-            FileOutputStream out = new FileOutputStream( strTempDirectoryExtract + File.separator +
+            out = new FileOutputStream( strTempDirectoryExtract + File.separator +
                     recordField.getFile(  ).getTitle(  ) );
 
             if ( recordField.getFile(  ) != null )
@@ -243,7 +243,6 @@ public final class FilesUtils
                     out.write( physicalFile.getValue(  ) );
                 }
             }
-
             out.close(  );
         }
         catch ( FileNotFoundException e )
@@ -253,6 +252,10 @@ public final class FilesUtils
         catch ( IOException e )
         {
             AppLogService.error( e );
+        }
+        finally
+        {
+            IOUtils.closeQuietly( out );
         }
     }
 

@@ -8,6 +8,8 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.commons.io.IOUtils;
+
 import fr.paris.lutece.plugins.archiveclient.service.archive.IArchiveClientService;
 import fr.paris.lutece.plugins.archiveclient.service.util.ArchiveClientConstants;
 import fr.paris.lutece.plugins.directory.modules.pdfproducer.utils.PDFUtils;
@@ -71,7 +73,7 @@ public final class ZipService
 		FilesUtils.createTemporyZipDirectory( strPathFilesGenerate );
 		FilesUtils.createTemporyZipDirectory( strPathZipGenerate );
 
-		FileOutputStream os;
+		FileOutputStream os = null;
 
 		try
 		{
@@ -81,6 +83,10 @@ public final class ZipService
 		catch ( FileNotFoundException e )
 		{
 		    AppLogService.error( e );
+		}
+		finally
+		{
+			IOUtils.closeQuietly( os );
 		}
 
 		FilesUtils.getAllFilesRecorded( request, strPathFilesGenerate , listIdEntryConfig );
