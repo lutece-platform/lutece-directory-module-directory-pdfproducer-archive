@@ -93,6 +93,9 @@ public class ZipBasketJspBean extends PluginAdminPageJspBean
     private static final String MESSAGE_CONFIRM_EXPORT_ALL_ZIP = "module.directory.pdfproducerarchive.message.confirm_export_all_zip";
     private static final String MESSAGE_EXPORT_ALL_ZIP = "module.directory.pdfproducerarchive.message.export_all_zip";
     private static final String MESSAGE_ERROR_EXPORT_ALL_ZIP = "module.directory.pdfproducerarchive.message.error_export_all_zip";
+    private static final String MESSAGE_EXPORT_ALL_ZIP_ALREADY_EXISTS = "module.directory.pdfproducerarchive.message.error_export_all_zip.already_exists";
+    private static final String MESSAGE_ERROR_ADD_ZIP_TO_BASKET_ALLEXPORT = "module.directory.pdfproducerarchive.message.error_add_zip_to_basket.allexport";
+    private static final String MESSAGE_ERROR_REMOVE_ZIP_TO_BASKET_ALLEXPORT = "module.directory.pdfproducerarchive.message.error_remove_zip_to_basket.allexport";
 
     //Markers
     private static final String MARK_ID_DIRECTORY = "idDirectory";
@@ -221,7 +224,8 @@ public class ZipBasketJspBean extends PluginAdminPageJspBean
         int nIdConfig = _manageConfigProducerService.loadDefaultConfig( getPlugin(  ),
                 DirectoryUtils.convertStringToInt( Integer.toString( record.getDirectory(  ).getIdDirectory(  ) ) ) );
         IConfigProducer configProducer = null;
-
+        
+        
         if ( ( nIdConfig == -1 ) || ( nIdConfig == 0 ) )
         {
             configProducer = new DefaultConfigProducer(  );
@@ -260,20 +264,29 @@ public class ZipBasketJspBean extends PluginAdminPageJspBean
         }
 
         UrlItem url = new UrlItem( getJspManageDirectoryRecord( request, record.getDirectory(  ).getIdDirectory(  ) ) );
-        boolean bZipAdded = _manageZipBasketService.addZipBasket( request, strName, getUser(  ).getUserId(  ),
-                getPlugin(  ), record.getDirectory(  ).getIdDirectory(  ),
-                DirectoryUtils.convertStringToInt( strIdRecord ),
-                _manageConfigProducerService.loadListConfigEntry( getPlugin(  ), nIdConfig ) );
-
-        if ( bZipAdded )
+        boolean bAllExportAlreadyExists = _manageZipBasketService.existsZipBasket(getUser(  ).getUserId(  ), getPlugin(  ), record.getDirectory(  ).getIdDirectory(  ), -1 ) ;
+        if ( !bAllExportAlreadyExists )
         {
-            return AdminMessageService.getMessageUrl( request, MESSAGE_ADD_ZIP_TO_BASKET, url.getUrl(  ),
-                AdminMessage.TYPE_INFO );
+	        boolean bZipAdded = _manageZipBasketService.addZipBasket( request, strName, getUser(  ).getUserId(  ),
+	                getPlugin(  ), record.getDirectory(  ).getIdDirectory(  ),
+	                DirectoryUtils.convertStringToInt( strIdRecord ),
+	                _manageConfigProducerService.loadListConfigEntry( getPlugin(  ), nIdConfig ) );
+	
+	        if ( bZipAdded )
+	        {
+	            return AdminMessageService.getMessageUrl( request, MESSAGE_ADD_ZIP_TO_BASKET, url.getUrl(  ),
+	                AdminMessage.TYPE_INFO );
+	        }
+	        else
+	        {
+	            return AdminMessageService.getMessageUrl( request, MESSAGE_ERROR_ADD_ZIP_TO_BASKET, url.getUrl(  ),
+	                AdminMessage.TYPE_STOP );
+	        }
         }
         else
         {
-            return AdminMessageService.getMessageUrl( request, MESSAGE_ERROR_ADD_ZIP_TO_BASKET, url.getUrl(  ),
-                AdminMessage.TYPE_STOP );
+        	return AdminMessageService.getMessageUrl( request, MESSAGE_ERROR_ADD_ZIP_TO_BASKET_ALLEXPORT, url.getUrl(  ),
+	                AdminMessage.TYPE_STOP );
         }
     }
 
@@ -308,20 +321,34 @@ public class ZipBasketJspBean extends PluginAdminPageJspBean
         String strIdDirectory = request.getParameter( PARAMETER_ID_DIRECTORY );
         String strIdRecord = request.getParameter( PARAMETER_ID_DIRECTORY_RECORD );
 
+        int nIdDirectory = DirectoryUtils.convertStringToInt( strIdDirectory );
+        
         UrlItem url = new UrlItem( JSP_MANAGE_ZIPBASKET );
-        url.addParameter( PARAMETER_ID_DIRECTORY, DirectoryUtils.convertStringToInt( strIdDirectory ) );
-
-        if ( _manageZipBasketService.deleteZipBasket( getPlugin(  ),
-                    DirectoryUtils.convertStringToInt( strIdZipBasket ), strIdRecord ) )
+        url.addParameter( PARAMETER_ID_DIRECTORY, nIdDirectory );
+        
+        int nIdAdminUser = getUser(  ).getUserId(  );
+        boolean bAllExportAlreadyExists = _manageZipBasketService.existsZipBasket(nIdAdminUser, getPlugin(  ), nIdDirectory, -1 ) ;
+        
+        if ( strIdRecord.equals("-1") || ( !strIdRecord.equals("-1") && !bAllExportAlreadyExists ) )
         {
-            return AdminMessageService.getMessageUrl( request, MESSAGE_REMOVE_ZIP_TO_BASKET, url.getUrl(  ),
-                AdminMessage.TYPE_INFO );
+        	if ( _manageZipBasketService.deleteZipBasket( getPlugin(  ),
+                    DirectoryUtils.convertStringToInt( strIdZipBasket ), strIdRecord ) )
+            {
+	            return AdminMessageService.getMessageUrl( request, MESSAGE_REMOVE_ZIP_TO_BASKET, url.getUrl(  ),
+	                AdminMessage.TYPE_INFO );
+            }
+            else
+            {
+                return AdminMessageService.getMessageUrl( request, MESSAGE_ERROR_REMOVE_ZIP_TO_BASKET, url.getUrl(  ),
+                    AdminMessage.TYPE_STOP );
+            }
         }
         else
         {
-            return AdminMessageService.getMessageUrl( request, MESSAGE_ERROR_REMOVE_ZIP_TO_BASKET, url.getUrl(  ),
-                AdminMessage.TYPE_STOP );
+        	return AdminMessageService.getMessageUrl( request, MESSAGE_ERROR_REMOVE_ZIP_TO_BASKET_ALLEXPORT, url.getUrl(  ),
+                    AdminMessage.TYPE_STOP );
         }
+        
     }
 
     /**
@@ -364,23 +391,29 @@ public class ZipBasketJspBean extends PluginAdminPageJspBean
         UrlItem url = new UrlItem( JSP_MANAGE_ZIPBASKET );
         url.addParameter( PARAMETER_ID_DIRECTORY, DirectoryUtils.convertStringToInt( strIdDirectory ) );
 
-        if ( bCheckAllFileZipped )
+        int nIdDirectory = DirectoryUtils.convertStringToInt( strIdDirectory );
+        int nIdAdminUser = getUser(  ).getUserId(  );
+        boolean bAllExportAlreadyExists = _manageZipBasketService.existsZipBasket(nIdAdminUser, getPlugin(  ), nIdDirectory, -1 ) ;
+        
+        if ( bCheckAllFileZipped && !bAllExportAlreadyExists )
         {
-            int nIdDirectory = DirectoryUtils.convertStringToInt( strIdDirectory );
             Directory directory = new Directory(  );
-
             if ( nIdDirectory != -1 )
             {
                 directory = DirectoryHome.findByPrimaryKey( nIdDirectory, getPlugin(  ) );
             }
 
             String strName = StringUtil.replaceAccent( directory.getTitle(  ) ).replace( " ", "_" );
-            int nIdAdminUser = getUser(  ).getUserId(  );
-
+            
             _manageZipBasketService.exportAllZipFile( strName, nIdAdminUser, getPlugin(  ), nIdDirectory );
 
             return AdminMessageService.getMessageUrl( request, MESSAGE_EXPORT_ALL_ZIP, url.getUrl(  ),
                 AdminMessage.TYPE_INFO );
+        }
+        else if ( bAllExportAlreadyExists )
+        {
+        	return AdminMessageService.getMessageUrl( request, MESSAGE_EXPORT_ALL_ZIP_ALREADY_EXISTS, url.getUrl(  ),
+                    AdminMessage.TYPE_STOP );
         }
         else
         {

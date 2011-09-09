@@ -272,6 +272,19 @@ public class DirectoryManageZipBasketService
     {
         return ZipBasketActionHome.selectActionsByZipBasketState( nState, plugin );
     }
+    
+    /**
+     * This SQL method check if the zip is already exists
+     * @param nIdAdminUser id of admin user
+     * @param plugin plugin
+     * @param nIdDirectory id directory
+     * @param nIdRecord id ercord
+     * @return true if the zip already exists
+     */
+    public boolean existsZipBasket( int nIdAdminUser, Plugin plugin, int nIdDirectory, int nIdRecord )
+    {
+        return ZipBasketHome.existsZipBasket( nIdAdminUser, plugin, nIdDirectory, nIdRecord );
+    }
 
     /**
      * Method to get ZipService
