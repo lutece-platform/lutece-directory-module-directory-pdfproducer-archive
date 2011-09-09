@@ -157,13 +157,4 @@ public final class ZipBasketHome
     {
         return _dao.loadZipBasket( plugin, nIdZipBasket );
     }
-
-    /**
-     * This method add new actions for directory record
-     * @param plugin plugin
-     */
-    public static void addActionsDirectoryRecord( Plugin plugin )
-    {
-        _dao.addActionsDirectoryRecord( plugin );
-    }
 }

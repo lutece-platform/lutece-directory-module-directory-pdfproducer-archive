@@ -46,7 +46,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
@@ -64,7 +63,7 @@ public final class ZipService
     public static final String PROPERTY_ZIP_NAME_REPOSITORY = "directory.zipbasket.name_zip_repository";
     public static final String EXTENSION_FILE_ZIP = ".zip";
     public static final String EXTENSION_FILE_PDF = ".pdf";
-    private static IArchiveClientService _archiveClientService;
+    private IArchiveClientService _archiveClientService;
 
     /**
     * Constructor
@@ -131,9 +130,9 @@ public final class ZipService
     /**
      * Method to delete zip
      * @param strIdRecord id record
-     * @param archiveItemKey id archive item
+     * @param nArchiveItemKey id archive item
      * @param nIdKeyUser id user key
-     * @param idDirectory id directory
+     * @param nIdDirectory id directory
      * @param zipName zip name
      * @return true if the zip is deleted otherwise false
      */
@@ -174,9 +173,9 @@ public final class ZipService
     /**
      * Method to do zip
      * @param strFolderToArchive path to the folder to archive
-     * @paramstrArchiveDestination path to the destination folder which will store the archive
-     * @paramstrArchiveName the name of the archive
-     * @paramstrArchiveType the archive type(zip,..)
+     * @param strArchiveDestination path to the destination folder which will store the archive
+     * @param strArchiveName the name of the archive
+     * @param strArchiveType the archive type(zip,..)
      * @return the archive id
      */
     public int doBasicZip( String strFolderToArchive, String strArchiveDestination, String strArchiveName,

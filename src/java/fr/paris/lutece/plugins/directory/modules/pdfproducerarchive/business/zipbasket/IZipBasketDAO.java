@@ -120,9 +120,4 @@ public interface IZipBasketDAO
      */
     ZipBasket loadZipBasket( Plugin plugin, int nIdZipBasket );
 
-    /**
-     * This method add new actions for directory record
-     * @param plugin plugin
-     */
-    void addActionsDirectoryRecord( Plugin plugin );
 }

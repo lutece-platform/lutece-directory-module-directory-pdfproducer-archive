@@ -79,6 +79,7 @@ public class DirectoryManageZipBasketService
      * @param plugin plugin
      * @param nIdDirectory id of directory
      * @param nIdRecord id of record
+     * @param listIdConfig list of id config
      * @return true if the zip is correctly added in the database, false if the zip already exists
      */
     public boolean addZipBasket( HttpServletRequest request, String strName, int nIdAdminUser, Plugin plugin,

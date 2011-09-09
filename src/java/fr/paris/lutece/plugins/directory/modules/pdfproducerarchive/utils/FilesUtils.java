@@ -76,6 +76,8 @@ public final class FilesUtils
 {
     private static final String PARAMETER_ID_DIRECTORY_RECORD = "id_directory_record";
     private static final String PROPERTY_PATH_FILES_GENERATED = "directory.zipbasket.root.path.repository.filesgenerated";
+    private static final String MESSAGE_DELETE_ERROR = "Error deleting file or directory";
+    private static final String MESSAGE_CREATE_ERROR ="Error creating directory";
 
     /**
      * Constructor
@@ -102,13 +104,20 @@ public final class FilesUtils
                 cleanTemporyZipDirectory( entries[j].getPath(  ) );
             }
 
-            file.delete(  );
+            if ( !file.delete(  ) )
+            {
+                AppLogService.error( MESSAGE_DELETE_ERROR );
+            }
+
             file.deleteOnExit(  );
         }
 
         if ( file.isFile(  ) )
         {
-            file.delete(  );
+            if ( !file.delete(  ) )
+            {
+                AppLogService.error( MESSAGE_DELETE_ERROR );
+            }
         }
     }
 
@@ -122,7 +131,10 @@ public final class FilesUtils
 
         if ( !file.isDirectory(  ) )
         {
-            file.mkdirs(  );
+           if( !file.mkdirs(  ) )
+    	   {
+        	   AppLogService.error( MESSAGE_CREATE_ERROR );;
+    	   }
         }
     }
 
@@ -130,8 +142,10 @@ public final class FilesUtils
      * Thie method get all recorded files
      * @param request request
      * @param strTempDirectoryExtract the temporary directory for extraction
+     * @param listIdEntryConfig config list of id entry
      */
-    public static void getAllFilesRecorded( HttpServletRequest request, String strTempDirectoryExtract , List<Integer> listIdEntryConfig )
+    public static void getAllFilesRecorded( HttpServletRequest request, String strTempDirectoryExtract,
+        List<Integer> listIdEntryConfig )
     {
         Plugin plugin = PluginService.getPlugin( DirectoryPlugin.PLUGIN_NAME );
         AdminUser adminUser = AdminUserService.getAdminUser( request );
@@ -169,19 +183,19 @@ public final class FilesUtils
             {
                 for ( IEntry child : entry.getChildren(  ) )
                 {
-                	if ( ( listIdEntryConfig.isEmpty(  ) ||
+                    if ( ( listIdEntryConfig.isEmpty(  ) ||
                             listIdEntryConfig.contains( Integer.valueOf( child.getIdEntry(  ) ) ) ) )
                     {
-                		doExtractFiles( strTempDirectoryExtract, plugin, nIdRecord, listEntry, child );
+                        doExtractFiles( strTempDirectoryExtract, plugin, nIdRecord, listEntry, child );
                     }
                 }
             }
             else
             {
-            	if ( ( listIdEntryConfig.isEmpty(  ) ||
+                if ( ( listIdEntryConfig.isEmpty(  ) ||
                         listIdEntryConfig.contains( Integer.valueOf( entry.getIdEntry(  ) ) ) ) )
                 {
-            		doExtractFiles( strTempDirectoryExtract, plugin, nIdRecord, listEntry, entry );
+                    doExtractFiles( strTempDirectoryExtract, plugin, nIdRecord, listEntry, entry );
                 }
             }
         }
@@ -198,7 +212,6 @@ public final class FilesUtils
     private static void doExtractFiles( String strTempDirectoryExtract, Plugin plugin, int nIdRecord,
         List<IEntry> listEntry, IEntry entry )
     {
-        
         for ( RecordField recordField : DirectoryUtils.getMapIdEntryListRecordField( listEntry, nIdRecord, plugin )
                                                       .get( String.valueOf( entry.getIdEntry(  ) ) ) )
         {
@@ -227,7 +240,8 @@ public final class FilesUtils
      */
     private static void doExtracFile( Plugin plugin, RecordField recordField, String strTempDirectoryExtract )
     {
-    	FileOutputStream out = null;
+        FileOutputStream out = null;
+
         try
         {
             out = new FileOutputStream( strTempDirectoryExtract + File.separator +
@@ -243,6 +257,7 @@ public final class FilesUtils
                     out.write( physicalFile.getValue(  ) );
                 }
             }
+
             out.close(  );
         }
         catch ( FileNotFoundException e )

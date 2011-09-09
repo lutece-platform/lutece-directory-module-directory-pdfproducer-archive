@@ -33,14 +33,15 @@
  */
 package fr.paris.lutece.plugins.directory.modules.pdfproducerarchive.business.zipbasket;
 
-import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.GregorianCalendar;
-import java.util.List;
-
 import fr.paris.lutece.plugins.directory.modules.pdfproducerarchive.utils.ConstantsStatusZip;
 import fr.paris.lutece.portal.service.plugin.Plugin;
 import fr.paris.lutece.util.sql.DAOUtil;
+
+import java.sql.Timestamp;
+
+import java.util.ArrayList;
+import java.util.GregorianCalendar;
+import java.util.List;
 
 
 /**
@@ -58,11 +59,7 @@ public class ZipBasketDAO implements IZipBasketDAO
     private static final String SQL_QUERY_UPDATE_STATUS = "UPDATE directory_zip_basket SET zip_state = ? , date_creation = ? WHERE id_zip_basket = ? ";
     private static final String SQL_QUERY_UPDATE_URL = "UPDATE directory_zip_basket SET url = ? , date_creation = ? WHERE id_zip_basket = ? ";
     private static final String SQL_QUERY_SELECT = "SELECT id_zip_basket, name, url, zip_state, id_user, id_directory, id_record, archive_item_key, date_creation FROM directory_zip_basket WHERE id_zip_basket = ? ";
-    private static final String SQL_QUERY_CHECK_ACTION_RECORD = "SELECT id_action, name_key, description_key, action_url, icon_url, action_permission, directory_state FROM directory_record_action WHERE action_url = 'jsp/admin/plugins/directory/modules/pdfproducer/archive/basket/ConfirmAddZipToBasket.jsp' ;";
-    private static final String SQL_QUERY_SELECT_MAX_ACTION_RECORD = "SELECT max(id_action) FROM directory_record_action";
-    private static final String SQL_QUERY_UPDATE_ACTION_RECORD = "INSERT INTO directory_record_action (id_action,name_key,description_key,action_url,icon_url,action_permission,directory_state) VALUES ( ? ,'module.directory.pdfproducerarchive.actions.addzipbasket.name','module.directory.pdfproducerarchive.actions.extractzip.description','jsp/admin/plugins/directory/modules/pdfproducer/archive/basket/ConfirmAddZipToBasket.jsp','images/admin/skin/plugins/directory/modules/pdfproducer/archive/actions/zipbasket/addzipbasket.png','ADDZIPBASKET',0);";
-    private static final String SQL_QUERY_UPDATE_ACTION_RECORD2 = "INSERT INTO directory_record_action (id_action,name_key,description_key,action_url,icon_url,action_permission,directory_state) VALUES ( ? ,'module.directory.pdfproducerarchive.actions.addzipbasket.name','module.directory.pdfproducerarchive.actions.extractzip.description','jsp/admin/plugins/directory/modules/pdfproducer/archive/basket/ConfirmAddZipToBasket.jsp','images/admin/skin/plugins/directory/modules/pdfproducer/archive/actions/zipbasket/addzipbasket.png','ADDZIPBASKET',1);";
-
+    
     /**
      * {@inheritDoc}
      */
@@ -258,37 +255,5 @@ public class ZipBasketDAO implements IZipBasketDAO
         daoUtil.free(  );
 
         return null;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public void addActionsDirectoryRecord( Plugin plugin )
-    {
-        DAOUtil daoUtil = new DAOUtil( SQL_QUERY_CHECK_ACTION_RECORD, plugin );
-        daoUtil.executeQuery(  );
-
-        if ( !daoUtil.next(  ) )
-        {
-            daoUtil = new DAOUtil( SQL_QUERY_SELECT_MAX_ACTION_RECORD, plugin );
-            daoUtil.executeQuery(  );
-
-            int nId = 1;
-
-            while ( daoUtil.next(  ) )
-            {
-                nId = daoUtil.getInt( 1 ) + 1;
-            }
-
-            daoUtil = new DAOUtil( SQL_QUERY_UPDATE_ACTION_RECORD, plugin );
-            daoUtil.setInt( 1, nId );
-            daoUtil.executeUpdate(  );
-            daoUtil = new DAOUtil( SQL_QUERY_UPDATE_ACTION_RECORD2, plugin );
-            daoUtil.setInt( 1, nId + 1 );
-            daoUtil.executeUpdate(  );
-            daoUtil.free(  );
-        }
-
-        daoUtil.free(  );
     }
 }
