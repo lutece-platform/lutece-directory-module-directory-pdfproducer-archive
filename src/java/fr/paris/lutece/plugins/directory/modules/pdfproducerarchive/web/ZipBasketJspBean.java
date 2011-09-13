@@ -44,6 +44,7 @@ import fr.paris.lutece.plugins.directory.modules.pdfproducer.business.producerco
 import fr.paris.lutece.plugins.directory.modules.pdfproducer.business.producerconfig.IConfigProducer;
 import fr.paris.lutece.plugins.directory.modules.pdfproducer.service.ConfigProducerService;
 import fr.paris.lutece.plugins.directory.modules.pdfproducer.service.DirectoryPDFProducerPlugin;
+import fr.paris.lutece.plugins.directory.modules.pdfproducer.utils.PDFUtils;
 import fr.paris.lutece.plugins.directory.modules.pdfproducerarchive.business.zipbasket.ZipBasket;
 import fr.paris.lutece.plugins.directory.modules.pdfproducerarchive.business.zipbasket.ZipBasketAction;
 import fr.paris.lutece.plugins.directory.modules.pdfproducerarchive.service.DirectoryManageZipBasketService;
@@ -241,7 +242,7 @@ public class ZipBasketJspBean extends PluginAdminPageJspBean
 
         if ( strTypeConfigFileName.equals( DEFAULT_TYPE_FILE_NAME ) )
         {
-            strName = StringUtil.replaceAccent( directory.getTitle(  ) ).replace( " ", "_" ) + "_" + strIdRecord;
+            strName = PDFUtils.doPurgeNameFile( StringUtil.replaceAccent( directory.getTitle(  ) ).replace( " ", "_" ) + "_" + strIdRecord );
         }
         else if ( strTypeConfigFileName.equals( DIRECTORY_ENTRY_FILE_NAME ) )
         {
@@ -254,15 +255,15 @@ public class ZipBasketJspBean extends PluginAdminPageJspBean
 
             for ( RecordField recordField : listRecordField )
             {
-                strName = recordField.getEntry(  )
-                                     .convertRecordFieldValueToString( recordField, getLocale(  ), false, false );
+                strName = PDFUtils.doPurgeNameFile( recordField.getEntry(  )
+                                     .convertRecordFieldValueToString( recordField, getLocale(  ), false, false ) );
             }
         }
         else
         {
-            strName = configProducer.getTextFileName(  ) + "_" + strIdRecord;
+            strName = PDFUtils.doPurgeNameFile( configProducer.getTextFileName(  ) + "_" + strIdRecord );
         }
-
+       
         UrlItem url = new UrlItem( getJspManageDirectoryRecord( request, record.getDirectory(  ).getIdDirectory(  ) ) );
         boolean bAllExportAlreadyExists = _manageZipBasketService.existsZipBasket(getUser(  ).getUserId(  ), getPlugin(  ), record.getDirectory(  ).getIdDirectory(  ), -1 ) ;
         if ( !bAllExportAlreadyExists )
