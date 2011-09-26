@@ -61,22 +61,36 @@ public class ZipBasketDAO implements IZipBasketDAO
     private static final String SQL_QUERY_SELECT = "SELECT id_zip_basket, name, url, zip_state, id_user, id_directory, id_record, archive_item_key, date_creation FROM directory_zip_basket WHERE id_zip_basket = ? ";
     
     /**
-     * {@inheritDoc}
+     * Gets a new primary key
+     * @param plugin the plugin
+     * @return the key
      */
-    public void addZipBasket( String strName, int nIdAdminUser, Plugin plugin, int nIdDirectory, int nIdRecord,
-        int nArchiveItemKey )
+    private int newPrimaryKey( Plugin plugin )
     {
         DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECT_MAX_ID, plugin );
         daoUtil.executeQuery(  );
 
         int nIdZipBasket = 1;
 
-        while ( daoUtil.next(  ) )
+        if ( daoUtil.next(  ) )
         {
             nIdZipBasket = daoUtil.getInt( 1 ) + 1;
         }
+        
+        daoUtil.free(  );
+        
+        return nIdZipBasket;
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    public synchronized void addZipBasket( String strName, int nIdAdminUser, Plugin plugin, int nIdDirectory, int nIdRecord,
+        int nArchiveItemKey )
+    {
+        int nIdZipBasket = newPrimaryKey( plugin );
 
-        daoUtil = new DAOUtil( SQL_QUERY_INSERT, plugin );
+        DAOUtil daoUtil = new DAOUtil( SQL_QUERY_INSERT, plugin );
         daoUtil.setInt( 1, nIdZipBasket );
         daoUtil.setString( 2, strName );
         daoUtil.setString( 3, ConstantsStatusZip.PARAMATER_STATUS_PENDING );
