@@ -43,7 +43,7 @@
 												<#else>
 													<a href="${action.url}?id_zipbasket=${zip.idZip}&id_directory=${idDirectory}&id_directory_record=${zip.idRecord}">
 												</#if> 										
-											  		<img src="${action.iconUrl}" alt="${action.name}" title="${action.description}">
+											  		<img src="${action.iconUrl}" alt="#i18n{${action.nameKey}}" title="#i18n{${action.descriptionKey}}">
 											  	</a>
 											</#if>
 										</#list>
@@ -106,7 +106,7 @@
 													<#else>
 														<a href="${action.url}?id_zipbasket=${zip.idZip}&id_directory=${idDirectory}&id_directory_record=${zip.idRecord}">
 													</#if> 										
-												  		<img src="${action.iconUrl}" alt="${action.name}" title="${action.description}">
+												  		<img src="${action.iconUrl}" alt="#i18n{${action.nameKey}}" title="#i18n{${action.descriptionKey}}">
 												  	</a>
 												</#if>
 											</#list>
