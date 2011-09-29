@@ -62,6 +62,7 @@ import fr.paris.lutece.portal.service.spring.SpringContextService;
 import fr.paris.lutece.portal.service.template.AppTemplateService;
 import fr.paris.lutece.portal.service.util.AppPathService;
 import fr.paris.lutece.portal.web.admin.PluginAdminPageJspBean;
+import fr.paris.lutece.portal.web.constants.Messages;
 import fr.paris.lutece.util.html.HtmlTemplate;
 import fr.paris.lutece.util.string.StringUtil;
 import fr.paris.lutece.util.url.UrlItem;
@@ -191,42 +192,81 @@ public class ZipBasketJspBean extends PluginAdminPageJspBean
     public String getConfirmAddZipBasket( HttpServletRequest request )
         throws AccessDeniedException
     {
-        String strIdDirectoryRecord = request.getParameter( PARAMETER_ID_DIRECTORY_RECORD );
-        int nIdDirectoryRecord = DirectoryUtils.convertStringToInt( strIdDirectoryRecord );
-        Record record = RecordHome.findByPrimaryKey( nIdDirectoryRecord, getPlugin(  ) );
+        String[] listIdsDirectoryRecord = request.getParameterValues( PARAMETER_ID_DIRECTORY_RECORD );
 
-        if ( ( record == null ) ||
-                !RBACService.isAuthorized( DirectoryPDFProducerArchiveResourceIdService.RESOURCE_TYPE,
-                    Integer.toString( record.getDirectory(  ).getIdDirectory(  ) ),
-                    DirectoryPDFProducerArchiveResourceIdService.PERMISSION_GENERATE_ZIP, getUser(  ) ) )
+        if ( ( listIdsDirectoryRecord != null ) && ( listIdsDirectoryRecord.length > 0 ) )
         {
-            throw new AccessDeniedException(  );
+            String strIdDirectory = request.getParameter( PARAMETER_ID_DIRECTORY );
+
+            // If the id directory is not in the parameter, then fetch it from the first record
+            // assuming all records are from the same directory 
+            if ( StringUtils.isBlank( strIdDirectory ) || !StringUtils.isNumeric( strIdDirectory ) )
+            {
+                String strIdDirectoryRecord = listIdsDirectoryRecord[0];
+                int nIdDirectoryRecord = DirectoryUtils.convertStringToInt( strIdDirectoryRecord );
+                Record record = RecordHome.findByPrimaryKey( nIdDirectoryRecord, getPlugin(  ) );
+                strIdDirectory = Integer.toString( record.getDirectory(  ).getIdDirectory(  ) );
+            }
+
+            int nIdDirectory = DirectoryUtils.convertStringToInt( strIdDirectory );
+            UrlItem url = new UrlItem( JSP_DO_ADD_ZIP_TO_BASKET );
+            url.addParameter( PARAMETER_ID_DIRECTORY, nIdDirectory );
+
+            for ( String strIdDirectoryRecord : listIdsDirectoryRecord )
+            {
+                int nIdDirectoryRecord = DirectoryUtils.convertStringToInt( strIdDirectoryRecord );
+                Record record = RecordHome.findByPrimaryKey( nIdDirectoryRecord, getPlugin(  ) );
+
+                if ( ( record == null ) || ( record.getDirectory(  ).getIdDirectory(  ) != nIdDirectory ) ||
+                        !RBACService.isAuthorized( DirectoryPDFProducerArchiveResourceIdService.RESOURCE_TYPE,
+                            Integer.toString( record.getDirectory(  ).getIdDirectory(  ) ),
+                            DirectoryPDFProducerArchiveResourceIdService.PERMISSION_GENERATE_ZIP, getUser(  ) ) )
+                {
+                    throw new AccessDeniedException(  );
+                }
+
+                url.addParameter( PARAMETER_ID_DIRECTORY_RECORD, nIdDirectoryRecord );
+            }
+
+            return AdminMessageService.getMessageUrl( request, MESSAGE_CONFIRM_ADD_ZIP_TO_BASKET, url.getUrl(  ),
+                AdminMessage.TYPE_CONFIRMATION );
         }
 
-        UrlItem url = new UrlItem( JSP_DO_ADD_ZIP_TO_BASKET );
-        url.addParameter( PARAMETER_ID_DIRECTORY_RECORD, nIdDirectoryRecord );
-
-        return AdminMessageService.getMessageUrl( request, MESSAGE_CONFIRM_ADD_ZIP_TO_BASKET, url.getUrl(  ),
-            AdminMessage.TYPE_CONFIRMATION );
+        return AdminMessageService.getMessageUrl( request, Messages.MANDATORY_FIELDS, AdminMessage.TYPE_STOP );
     }
 
     /**
      * Add zip to basket or return error message
      * @param request request
      * @return message of confirmation or error
+     * @throws AccessDeniedException exception if the user does not have the right
      */
     public String addZipToBasket( HttpServletRequest request )
+        throws AccessDeniedException
     {
-        String strIdRecord = request.getParameter( PARAMETER_ID_DIRECTORY_RECORD );
+        String[] listIdsRecord = request.getParameterValues( PARAMETER_ID_DIRECTORY_RECORD );
+        String strIdDirectory = request.getParameter( PARAMETER_ID_DIRECTORY );
 
-        Record record = RecordHome.findByPrimaryKey( DirectoryUtils.convertStringToInt( strIdRecord ), getPlugin(  ) );
-        Directory directory = DirectoryHome.findByPrimaryKey( record.getDirectory(  ).getIdDirectory(  ), getPlugin(  ) );
+        // Check parameteres
+        if ( ( listIdsRecord == null ) || ( listIdsRecord.length == 0 ) || StringUtils.isBlank( strIdDirectory ) )
+        {
+            return AdminMessageService.getMessageUrl( request, Messages.MANDATORY_FIELDS, AdminMessage.TYPE_STOP );
+        }
 
+        // Fetch directory
+        int nIdDirectory = DirectoryUtils.convertStringToInt( strIdDirectory );
+        Directory directory = DirectoryHome.findByPrimaryKey( nIdDirectory, getPlugin(  ) );
+
+        if ( directory == null )
+        {
+            throw new AccessDeniedException(  );
+        }
+
+        // Fetch config
         int nIdConfig = _manageConfigProducerService.loadDefaultConfig( getPlugin(  ),
-                DirectoryUtils.convertStringToInt( Integer.toString( record.getDirectory(  ).getIdDirectory(  ) ) ) );
+                DirectoryUtils.convertStringToInt( Integer.toString( directory.getIdDirectory(  ) ) ) );
         IConfigProducer configProducer = null;
-        
-        
+
         if ( ( nIdConfig == -1 ) || ( nIdConfig == 0 ) )
         {
             configProducer = new DefaultConfigProducer(  );
@@ -237,58 +277,75 @@ public class ZipBasketJspBean extends PluginAdminPageJspBean
         }
 
         String strTypeConfigFileName = configProducer.getTypeConfigFileName(  );
+        UrlItem url = new UrlItem( getJspManageDirectoryRecord( request, nIdDirectory ) );
 
-        String strName = null;
-
-        if ( strTypeConfigFileName.equals( DEFAULT_TYPE_FILE_NAME ) )
+        for ( String strIdRecord : listIdsRecord )
         {
-            strName = PDFUtils.doPurgeNameFile( StringUtil.replaceAccent( directory.getTitle(  ) ).replace( " ", "_" ) + "_" + strIdRecord );
-        }
-        else if ( strTypeConfigFileName.equals( DIRECTORY_ENTRY_FILE_NAME ) )
-        {
-            Plugin pluginDirectory = PluginService.getPlugin( DirectoryPlugin.PLUGIN_NAME );
-            RecordFieldFilter filter = new RecordFieldFilter(  );
-            filter.setIdRecord( DirectoryUtils.convertStringToInt( strIdRecord ) );
-            filter.setIdEntry( configProducer.getIdEntryFileName(  ) );
+            int nIdRecord = DirectoryUtils.convertStringToInt( strIdRecord );
+            Record record = RecordHome.findByPrimaryKey( nIdRecord, getPlugin(  ) );
 
-            List<RecordField> listRecordField = RecordFieldHome.getRecordFieldList( filter, pluginDirectory );
-
-            for ( RecordField recordField : listRecordField )
+            // Check permissions
+            if ( ( record == null ) || ( record.getDirectory(  ).getIdDirectory(  ) != nIdDirectory ) ||
+                    !RBACService.isAuthorized( DirectoryPDFProducerArchiveResourceIdService.RESOURCE_TYPE,
+                        strIdDirectory, DirectoryPDFProducerArchiveResourceIdService.PERMISSION_GENERATE_ZIP,
+                        getUser(  ) ) )
             {
-                strName = PDFUtils.doPurgeNameFile( recordField.getEntry(  )
-                                     .convertRecordFieldValueToString( recordField, getLocale(  ), false, false ) );
+                throw new AccessDeniedException(  );
+            }
+
+            String strName = null;
+
+            // Build file name
+            if ( DEFAULT_TYPE_FILE_NAME.equals( strTypeConfigFileName ) )
+            {
+                strName = PDFUtils.doPurgeNameFile( StringUtil.replaceAccent( directory.getTitle(  ) ).replace( " ", "_" ) +
+                        "_" + strIdRecord );
+            }
+            else if ( DIRECTORY_ENTRY_FILE_NAME.equals( strTypeConfigFileName ) )
+            {
+                Plugin pluginDirectory = PluginService.getPlugin( DirectoryPlugin.PLUGIN_NAME );
+                RecordFieldFilter filter = new RecordFieldFilter(  );
+                filter.setIdRecord( nIdRecord );
+                filter.setIdEntry( configProducer.getIdEntryFileName(  ) );
+
+                List<RecordField> listRecordField = RecordFieldHome.getRecordFieldList( filter, pluginDirectory );
+
+                for ( RecordField recordField : listRecordField )
+                {
+                    strName = PDFUtils.doPurgeNameFile( recordField.getEntry(  )
+                                                                   .convertRecordFieldValueToString( recordField,
+                                getLocale(  ), false, false ) );
+                }
+            }
+            else
+            {
+                strName = PDFUtils.doPurgeNameFile( configProducer.getTextFileName(  ) + "_" + strIdRecord );
+            }
+
+            boolean bAllExportAlreadyExists = _manageZipBasketService.existsZipBasket( getUser(  ).getUserId(  ),
+                    getPlugin(  ), nIdDirectory, -1 );
+
+            if ( !bAllExportAlreadyExists )
+            {
+                boolean bZipAdded = _manageZipBasketService.addZipBasket( request, strName, getUser(  ).getUserId(  ),
+                        getPlugin(  ), nIdDirectory, nIdRecord,
+                        _manageConfigProducerService.loadListConfigEntry( getPlugin(  ), nIdConfig ) );
+
+                if ( !bZipAdded )
+                {
+                    return AdminMessageService.getMessageUrl( request, MESSAGE_ERROR_ADD_ZIP_TO_BASKET, url.getUrl(  ),
+                        AdminMessage.TYPE_STOP );
+                }
+            }
+            else
+            {
+                return AdminMessageService.getMessageUrl( request, MESSAGE_ERROR_ADD_ZIP_TO_BASKET_ALLEXPORT,
+                    url.getUrl(  ), AdminMessage.TYPE_STOP );
             }
         }
-        else
-        {
-            strName = PDFUtils.doPurgeNameFile( configProducer.getTextFileName(  ) + "_" + strIdRecord );
-        }
-       
-        UrlItem url = new UrlItem( getJspManageDirectoryRecord( request, record.getDirectory(  ).getIdDirectory(  ) ) );
-        boolean bAllExportAlreadyExists = _manageZipBasketService.existsZipBasket(getUser(  ).getUserId(  ), getPlugin(  ), record.getDirectory(  ).getIdDirectory(  ), -1 ) ;
-        if ( !bAllExportAlreadyExists )
-        {
-	        boolean bZipAdded = _manageZipBasketService.addZipBasket( request, strName, getUser(  ).getUserId(  ),
-	                getPlugin(  ), record.getDirectory(  ).getIdDirectory(  ),
-	                DirectoryUtils.convertStringToInt( strIdRecord ),
-	                _manageConfigProducerService.loadListConfigEntry( getPlugin(  ), nIdConfig ) );
-	
-	        if ( bZipAdded )
-	        {
-	            return AdminMessageService.getMessageUrl( request, MESSAGE_ADD_ZIP_TO_BASKET, url.getUrl(  ),
-	                AdminMessage.TYPE_INFO );
-	        }
-	        else
-	        {
-	            return AdminMessageService.getMessageUrl( request, MESSAGE_ERROR_ADD_ZIP_TO_BASKET, url.getUrl(  ),
-	                AdminMessage.TYPE_STOP );
-	        }
-        }
-        else
-        {
-        	return AdminMessageService.getMessageUrl( request, MESSAGE_ERROR_ADD_ZIP_TO_BASKET_ALLEXPORT, url.getUrl(  ),
-	                AdminMessage.TYPE_STOP );
-        }
+
+        return AdminMessageService.getMessageUrl( request, MESSAGE_ADD_ZIP_TO_BASKET, url.getUrl(  ),
+            AdminMessage.TYPE_INFO );
     }
 
     /**
@@ -323,20 +380,21 @@ public class ZipBasketJspBean extends PluginAdminPageJspBean
         String strIdRecord = request.getParameter( PARAMETER_ID_DIRECTORY_RECORD );
 
         int nIdDirectory = DirectoryUtils.convertStringToInt( strIdDirectory );
-        
+
         UrlItem url = new UrlItem( JSP_MANAGE_ZIPBASKET );
         url.addParameter( PARAMETER_ID_DIRECTORY, nIdDirectory );
-        
+
         int nIdAdminUser = getUser(  ).getUserId(  );
-        boolean bAllExportAlreadyExists = _manageZipBasketService.existsZipBasket(nIdAdminUser, getPlugin(  ), nIdDirectory, -1 ) ;
-        
-        if ( strIdRecord.equals("-1") || ( !strIdRecord.equals("-1") && !bAllExportAlreadyExists ) )
+        boolean bAllExportAlreadyExists = _manageZipBasketService.existsZipBasket( nIdAdminUser, getPlugin(  ),
+                nIdDirectory, -1 );
+
+        if ( strIdRecord.equals( "-1" ) || ( !strIdRecord.equals( "-1" ) && !bAllExportAlreadyExists ) )
         {
-        	if ( _manageZipBasketService.deleteZipBasket( getPlugin(  ),
-                    DirectoryUtils.convertStringToInt( strIdZipBasket ), strIdRecord ) )
+            if ( _manageZipBasketService.deleteZipBasket( getPlugin(  ),
+                        DirectoryUtils.convertStringToInt( strIdZipBasket ), strIdRecord ) )
             {
-	            return AdminMessageService.getMessageUrl( request, MESSAGE_REMOVE_ZIP_TO_BASKET, url.getUrl(  ),
-	                AdminMessage.TYPE_INFO );
+                return AdminMessageService.getMessageUrl( request, MESSAGE_REMOVE_ZIP_TO_BASKET, url.getUrl(  ),
+                    AdminMessage.TYPE_INFO );
             }
             else
             {
@@ -346,10 +404,9 @@ public class ZipBasketJspBean extends PluginAdminPageJspBean
         }
         else
         {
-        	return AdminMessageService.getMessageUrl( request, MESSAGE_ERROR_REMOVE_ZIP_TO_BASKET_ALLEXPORT, url.getUrl(  ),
-                    AdminMessage.TYPE_STOP );
+            return AdminMessageService.getMessageUrl( request, MESSAGE_ERROR_REMOVE_ZIP_TO_BASKET_ALLEXPORT,
+                url.getUrl(  ), AdminMessage.TYPE_STOP );
         }
-        
     }
 
     /**
@@ -394,18 +451,20 @@ public class ZipBasketJspBean extends PluginAdminPageJspBean
 
         int nIdDirectory = DirectoryUtils.convertStringToInt( strIdDirectory );
         int nIdAdminUser = getUser(  ).getUserId(  );
-        boolean bAllExportAlreadyExists = _manageZipBasketService.existsZipBasket(nIdAdminUser, getPlugin(  ), nIdDirectory, -1 ) ;
-        
+        boolean bAllExportAlreadyExists = _manageZipBasketService.existsZipBasket( nIdAdminUser, getPlugin(  ),
+                nIdDirectory, -1 );
+
         if ( bCheckAllFileZipped && !bAllExportAlreadyExists )
         {
             Directory directory = new Directory(  );
+
             if ( nIdDirectory != -1 )
             {
                 directory = DirectoryHome.findByPrimaryKey( nIdDirectory, getPlugin(  ) );
             }
 
             String strName = StringUtil.replaceAccent( directory.getTitle(  ) ).replace( " ", "_" );
-            
+
             _manageZipBasketService.exportAllZipFile( strName, nIdAdminUser, getPlugin(  ), nIdDirectory );
 
             return AdminMessageService.getMessageUrl( request, MESSAGE_EXPORT_ALL_ZIP, url.getUrl(  ),
@@ -413,8 +472,8 @@ public class ZipBasketJspBean extends PluginAdminPageJspBean
         }
         else if ( bAllExportAlreadyExists )
         {
-        	return AdminMessageService.getMessageUrl( request, MESSAGE_EXPORT_ALL_ZIP_ALREADY_EXISTS, url.getUrl(  ),
-                    AdminMessage.TYPE_STOP );
+            return AdminMessageService.getMessageUrl( request, MESSAGE_EXPORT_ALL_ZIP_ALREADY_EXISTS, url.getUrl(  ),
+                AdminMessage.TYPE_STOP );
         }
         else
         {

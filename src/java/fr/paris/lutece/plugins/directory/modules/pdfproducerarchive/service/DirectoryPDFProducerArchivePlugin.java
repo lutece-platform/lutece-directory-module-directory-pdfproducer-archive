@@ -48,90 +48,92 @@ import fr.paris.lutece.portal.service.plugin.PluginService;
 public class DirectoryPDFProducerArchivePlugin extends PluginDefaultImplementation
 {
     public static final String PLUGIN_NAME = "directory-pdfproducer-archive";
-   
     public static final String DIRECTORY_ACTION_NAME_KEY = "module.directory.pdfproducerarchive.actions.extractzip.name";
     public static final String DIRECTORY_ACTION_DESCRIPTION = "module.directory.pdfproducerarchive.actions.extractzip.description";
     public static final String DIRECTORY_ACTION_URL = "jsp/admin/plugins/directory/modules/pdfproducer/archive/basket/ConfirmAddZipToBasket.jsp";
     public static final String DIRECTORY_ACTION_URL_ICON_PDF = "images/admin/skin/plugins/directory/modules/pdfproducer/archive/actions/zipbasket/addzipbasket.png";
     public static final String DIRECTORY_ACTION_PERMISSION = "ADDZIPBASKET";
-    public static final int DIRECTORY_ACTION_STATE_0 = 0 ;
-    public static final int DIRECTORY_ACTION_STATE_1 = 1 ;
-    
+    public static final int DIRECTORY_ACTION_STATE_0 = 0;
+    public static final int DIRECTORY_ACTION_STATE_1 = 1;
+
     /**
      * {@inheritDoc}
      */
     public void init(  )
     {
-    	checkAndAddNewDirectoryRecordAction ( );
+        checkAndAddNewDirectoryRecordAction(  );
     }
 
     /**
      * {@inheritDoc}
      */
-    public void install()
+    public void install(  )
     {
-    	super.install();
-    	checkAndAddNewDirectoryRecordAction ( );   	
+        super.install(  );
+        checkAndAddNewDirectoryRecordAction(  );
     }
-    
+
     /**
      * {@inheritDoc}
      */
-    public void uninstall()
+    public void uninstall(  )
     {
-    	super.uninstall();
-    	Plugin directoryPlugin = PluginService.getPlugin(DirectoryPlugin.PLUGIN_NAME) ;
-    	
-    	DirectoryAction directoryAction = initAction ( DIRECTORY_ACTION_STATE_0 );
-    	
-    	if  ( DirectoryActionHome.checkActionsDirectoryRecord( directoryAction , directoryPlugin ) )
-    	{
-    		DirectoryActionHome.deleteActionsDirectoryRecord( directoryAction , directoryPlugin );
-    	}
-    	
-    	directoryAction = initAction ( DIRECTORY_ACTION_STATE_1 );
-    	if  ( DirectoryActionHome.checkActionsDirectoryRecord( directoryAction , directoryPlugin ) )
-    	{
-    		DirectoryActionHome.deleteActionsDirectoryRecord( directoryAction , directoryPlugin );
-    	}
+        super.uninstall(  );
+
+        Plugin directoryPlugin = PluginService.getPlugin( DirectoryPlugin.PLUGIN_NAME );
+
+        DirectoryAction directoryAction = initAction( DIRECTORY_ACTION_STATE_0 );
+
+        if ( DirectoryActionHome.checkActionsDirectoryRecord( directoryAction, directoryPlugin ) )
+        {
+            DirectoryActionHome.deleteActionsDirectoryRecord( directoryAction, directoryPlugin );
+        }
+
+        directoryAction = initAction( DIRECTORY_ACTION_STATE_1 );
+
+        if ( DirectoryActionHome.checkActionsDirectoryRecord( directoryAction, directoryPlugin ) )
+        {
+            DirectoryActionHome.deleteActionsDirectoryRecord( directoryAction, directoryPlugin );
+        }
     }
-    
+
     /**
      * This method add new directory record action
      */
-    private static void checkAndAddNewDirectoryRecordAction ( )
+    private static void checkAndAddNewDirectoryRecordAction(  )
     {
-    	Plugin directoryPlugin = PluginService.getPlugin(DirectoryPlugin.PLUGIN_NAME) ;
-    	
-    	DirectoryAction directoryAction = initAction ( DIRECTORY_ACTION_STATE_0 );
-    	
-    	if  ( !DirectoryActionHome.checkActionsDirectoryRecord( directoryAction , directoryPlugin ) )
-    	{
-    		DirectoryActionHome.addNewActionInDirectoryRecordAction( directoryAction , directoryPlugin );
-    	}
-    	
-    	directoryAction = initAction ( DIRECTORY_ACTION_STATE_1 );
-    	if  ( !DirectoryActionHome.checkActionsDirectoryRecord( directoryAction , directoryPlugin ) )
-    	{
-    		DirectoryActionHome.addNewActionInDirectoryRecordAction( directoryAction , directoryPlugin );
-    	}
+        Plugin directoryPlugin = PluginService.getPlugin( DirectoryPlugin.PLUGIN_NAME );
+
+        DirectoryAction directoryAction = initAction( DIRECTORY_ACTION_STATE_0 );
+
+        if ( !DirectoryActionHome.checkActionsDirectoryRecord( directoryAction, directoryPlugin ) )
+        {
+            DirectoryActionHome.addNewActionInDirectoryRecordAction( directoryAction, directoryPlugin );
+        }
+
+        directoryAction = initAction( DIRECTORY_ACTION_STATE_1 );
+
+        if ( !DirectoryActionHome.checkActionsDirectoryRecord( directoryAction, directoryPlugin ) )
+        {
+            DirectoryActionHome.addNewActionInDirectoryRecordAction( directoryAction, directoryPlugin );
+        }
     }
-    
+
     /**
      * this method create a DirectoryAction
      * @param nFormState 0 or 1
      * @return DirectoryAction
      */
-    private static DirectoryAction initAction ( int nFormState )
+    private static DirectoryAction initAction( int nFormState )
     {
-    	DirectoryAction directoryAction = new DirectoryAction();
-    	directoryAction.setNameKey( DIRECTORY_ACTION_NAME_KEY );
-    	directoryAction.setDescriptionKey( DIRECTORY_ACTION_DESCRIPTION );
-    	directoryAction.setUrl( DIRECTORY_ACTION_URL );
-    	directoryAction.setIconUrl( DIRECTORY_ACTION_URL_ICON_PDF );
-    	directoryAction.setPermission( DIRECTORY_ACTION_PERMISSION );
-    	directoryAction.setFormState( nFormState );
-    	
-    	return directoryAction;
+        DirectoryAction directoryAction = new DirectoryAction(  );
+        directoryAction.setNameKey( DIRECTORY_ACTION_NAME_KEY );
+        directoryAction.setDescriptionKey( DIRECTORY_ACTION_DESCRIPTION );
+        directoryAction.setUrl( DIRECTORY_ACTION_URL );
+        directoryAction.setIconUrl( DIRECTORY_ACTION_URL_ICON_PDF );
+        directoryAction.setPermission( DIRECTORY_ACTION_PERMISSION );
+        directoryAction.setFormState( nFormState );
+
+        return directoryAction;
     }
 }

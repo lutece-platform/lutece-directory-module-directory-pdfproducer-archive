@@ -86,13 +86,15 @@ public final class ZipService
     public int doGeneratePDFAndZip( HttpServletRequest request, String strName, int nIdKeyUser, int nIdDirectory,
         List<Integer> listIdEntryConfig )
     {
-    	if ( StringUtils.isNotEmpty( strName ) )
+        String strDirectoryName = strName;
+
+        if ( StringUtils.isNotEmpty( strName ) )
         {
-    		strName = StringUtil.replaceAccent( strName ).replaceAll("\\W","_");
+            strDirectoryName = StringUtil.replaceAccent( strName ).replaceAll( "\\W", "_" );
         }
-    	
+
         String strPathFilesGenerate = FilesUtils.builNamePathBasket( nIdKeyUser, nIdDirectory ) + File.separator +
-            strName;
+            strDirectoryName;
         String strPathZipGenerate = FilesUtils.builNamePathBasket( nIdKeyUser, nIdDirectory ) + File.separator +
             AppPropertiesService.getProperty( PROPERTY_ZIP_NAME_REPOSITORY );
 
@@ -103,8 +105,8 @@ public final class ZipService
 
         try
         {
-            os = new FileOutputStream( new File( strPathFilesGenerate + "/" + strName + EXTENSION_FILE_PDF ) );
-            PDFUtils.doCreateDocumentPDF( request, strName, os, listIdEntryConfig );
+            os = new FileOutputStream( new File( strPathFilesGenerate + "/" + strDirectoryName + EXTENSION_FILE_PDF ) );
+            PDFUtils.doCreateDocumentPDF( request, strDirectoryName, os, listIdEntryConfig );
         }
         catch ( FileNotFoundException e )
         {
@@ -117,12 +119,12 @@ public final class ZipService
 
         FilesUtils.getAllFilesRecorded( request, strPathFilesGenerate, listIdEntryConfig );
 
-        int nARchiveItemKey;
+        int nArchiveItemKey;
 
         try
         {
-            nARchiveItemKey = _archiveClientService.generateArchive( strPathFilesGenerate, strPathZipGenerate,
-                    strName + EXTENSION_FILE_ZIP, ArchiveClientConstants.ARCHIVE_TYPE_ZIP );
+            nArchiveItemKey = _archiveClientService.generateArchive( strPathFilesGenerate, strPathZipGenerate,
+                    strDirectoryName + EXTENSION_FILE_ZIP, ArchiveClientConstants.ARCHIVE_TYPE_ZIP );
         }
         catch ( Exception e )
         {
@@ -131,7 +133,7 @@ public final class ZipService
             return -1;
         }
 
-        return nARchiveItemKey;
+        return nArchiveItemKey;
     }
 
     /**

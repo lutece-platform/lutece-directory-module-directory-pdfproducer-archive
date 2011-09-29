@@ -119,5 +119,4 @@ public interface IZipBasketDAO
      * @return the zipbasket by the id
      */
     ZipBasket loadZipBasket( Plugin plugin, int nIdZipBasket );
-
 }

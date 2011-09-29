@@ -272,7 +272,7 @@ public class DirectoryManageZipBasketService
     {
         return ZipBasketActionHome.selectActionsByZipBasketState( nState, plugin );
     }
-    
+
     /**
      * This SQL method check if the zip is already exists
      * @param nIdAdminUser id of admin user

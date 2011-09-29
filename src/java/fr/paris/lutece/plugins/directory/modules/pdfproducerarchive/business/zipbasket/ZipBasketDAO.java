@@ -59,7 +59,7 @@ public class ZipBasketDAO implements IZipBasketDAO
     private static final String SQL_QUERY_UPDATE_STATUS = "UPDATE directory_zip_basket SET zip_state = ? , date_creation = ? WHERE id_zip_basket = ? ";
     private static final String SQL_QUERY_UPDATE_URL = "UPDATE directory_zip_basket SET url = ? , date_creation = ? WHERE id_zip_basket = ? ";
     private static final String SQL_QUERY_SELECT = "SELECT id_zip_basket, name, url, zip_state, id_user, id_directory, id_record, archive_item_key, date_creation FROM directory_zip_basket WHERE id_zip_basket = ? ";
-    
+
     /**
      * Gets a new primary key
      * @param plugin the plugin
@@ -76,17 +76,17 @@ public class ZipBasketDAO implements IZipBasketDAO
         {
             nIdZipBasket = daoUtil.getInt( 1 ) + 1;
         }
-        
+
         daoUtil.free(  );
-        
+
         return nIdZipBasket;
     }
-    
+
     /**
      * {@inheritDoc}
      */
-    public synchronized void addZipBasket( String strName, int nIdAdminUser, Plugin plugin, int nIdDirectory, int nIdRecord,
-        int nArchiveItemKey )
+    public synchronized void addZipBasket( String strName, int nIdAdminUser, Plugin plugin, int nIdDirectory,
+        int nIdRecord, int nArchiveItemKey )
     {
         int nIdZipBasket = newPrimaryKey( plugin );
 

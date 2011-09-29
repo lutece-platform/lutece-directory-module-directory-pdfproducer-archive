@@ -77,7 +77,7 @@ public final class FilesUtils
     private static final String PARAMETER_ID_DIRECTORY_RECORD = "id_directory_record";
     private static final String PROPERTY_PATH_FILES_GENERATED = "directory.zipbasket.root.path.repository.filesgenerated";
     private static final String MESSAGE_DELETE_ERROR = "Error deleting file or directory";
-    private static final String MESSAGE_CREATE_ERROR ="Error creating directory";
+    private static final String MESSAGE_CREATE_ERROR = "Error creating directory";
 
     /**
      * Constructor
@@ -131,10 +131,10 @@ public final class FilesUtils
 
         if ( !file.isDirectory(  ) )
         {
-           if( !file.mkdirs(  ) )
-    	   {
-        	   AppLogService.error( MESSAGE_CREATE_ERROR );;
-    	   }
+            if ( !file.mkdirs(  ) )
+            {
+                AppLogService.error( MESSAGE_CREATE_ERROR );
+            }
         }
     }
 
