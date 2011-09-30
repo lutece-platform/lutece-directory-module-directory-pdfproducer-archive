@@ -12,8 +12,8 @@
     
     
     <!--  Actions  -->
-    <bean id="directory.zipBasket" class="fr.paris.lutece.plugins.directory.modules.pdfproducerarchive.web.action.ZipBasketAction" />
-    <bean id="directory.MassExportZip" class="fr.paris.lutece.plugins.directory.modules.pdfproducerarchive.web.action.MassExportZipAction" />
+    <bean id="directory-pdfproducer-archive.zipBasket" class="fr.paris.lutece.plugins.directory.modules.pdfproducerarchive.web.action.ZipBasketAction" />
+    <bean id="directory-pdfproducer-archive.massExportZip" class="fr.paris.lutece.plugins.directory.modules.pdfproducerarchive.web.action.MassExportZipAction" />
     	
 	<!--  Zip Basket  -->
     <bean id="directoryZipBasketDAO" class="fr.paris.lutece.plugins.directory.modules.pdfproducerarchive.business.zipbasket.ZipBasketDAO" />
