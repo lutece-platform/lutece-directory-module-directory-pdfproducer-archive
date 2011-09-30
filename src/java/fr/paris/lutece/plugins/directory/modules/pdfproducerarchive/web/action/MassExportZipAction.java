@@ -34,14 +34,15 @@
 package fr.paris.lutece.plugins.directory.modules.pdfproducerarchive.web.action;
 
 import fr.paris.lutece.plugins.directory.utils.DirectoryUtils;
-import fr.paris.lutece.plugins.directory.web.action.DirectoryActionResult;
 import fr.paris.lutece.plugins.directory.web.action.DirectoryAdminSearchFields;
-import fr.paris.lutece.plugins.directory.web.action.IDirectoryAction;
 import fr.paris.lutece.portal.business.user.AdminUser;
 import fr.paris.lutece.portal.service.admin.AccessDeniedException;
 import fr.paris.lutece.portal.service.message.AdminMessage;
 import fr.paris.lutece.portal.service.message.AdminMessageService;
 import fr.paris.lutece.portal.service.util.AppPathService;
+import fr.paris.lutece.portal.web.pluginaction.DefaultPluginActionResult;
+import fr.paris.lutece.portal.web.pluginaction.IPluginAction;
+import fr.paris.lutece.portal.web.pluginaction.IPluginActionResult;
 import fr.paris.lutece.util.url.UrlItem;
 
 import org.apache.commons.lang.StringUtils;
@@ -56,7 +57,7 @@ import javax.servlet.http.HttpServletResponse;
  * MassExportZipAction
  *
  */
-public class MassExportZipAction implements IDirectoryAction
+public class MassExportZipAction implements IPluginAction<DirectoryAdminSearchFields>
 {
     // ACTION
     private static final String ACTION_NAME = "Mass export Zip";
@@ -75,6 +76,7 @@ public class MassExportZipAction implements IDirectoryAction
      */
     public void fillModel( HttpServletRequest request, AdminUser adminUser, Map<String, Object> model )
     {
+    	// nothing
     }
 
     /**
@@ -104,11 +106,11 @@ public class MassExportZipAction implements IDirectoryAction
     /**
      * {@inheritDoc}
      */
-    public DirectoryActionResult process( HttpServletRequest request, HttpServletResponse response,
+    public IPluginActionResult process( HttpServletRequest request, HttpServletResponse response,
         AdminUser adminUser, DirectoryAdminSearchFields sessionFields )
         throws AccessDeniedException
     {
-        DirectoryActionResult result = new DirectoryActionResult(  );
+    	IPluginActionResult result = new DefaultPluginActionResult(  );
 
         String strRedirect = StringUtils.EMPTY;
 

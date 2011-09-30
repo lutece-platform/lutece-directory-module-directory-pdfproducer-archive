@@ -34,12 +34,14 @@
 package fr.paris.lutece.plugins.directory.modules.pdfproducerarchive.web.action;
 
 import fr.paris.lutece.plugins.directory.utils.DirectoryUtils;
-import fr.paris.lutece.plugins.directory.web.action.DirectoryActionResult;
 import fr.paris.lutece.plugins.directory.web.action.DirectoryAdminSearchFields;
 import fr.paris.lutece.plugins.directory.web.action.IDirectoryAction;
 import fr.paris.lutece.portal.business.user.AdminUser;
 import fr.paris.lutece.portal.service.admin.AccessDeniedException;
 import fr.paris.lutece.portal.service.util.AppPathService;
+import fr.paris.lutece.portal.web.pluginaction.DefaultPluginActionResult;
+import fr.paris.lutece.portal.web.pluginaction.IPluginAction;
+import fr.paris.lutece.portal.web.pluginaction.IPluginActionResult;
 import fr.paris.lutece.util.url.UrlItem;
 
 import org.apache.commons.lang.StringUtils;
@@ -54,7 +56,7 @@ import javax.servlet.http.HttpServletResponse;
  * ZipBasketAction
  *
  */
-public class ZipBasketAction implements IDirectoryAction
+public class ZipBasketAction implements IPluginAction<DirectoryAdminSearchFields>
 {
     private static final String ACTION_NAME = "Panier ZIP";
     private static final String TEMPLATE_BUTTON = "../directory/modules/pdfproducer/archive/actions/zip_basket.html";
@@ -67,7 +69,7 @@ public class ZipBasketAction implements IDirectoryAction
      */
     public void fillModel( HttpServletRequest request, AdminUser adminUser, Map<String, Object> model )
     {
-        // TODO Auto-generated method stub
+        // nothing
     }
 
     /**
@@ -104,11 +106,11 @@ public class ZipBasketAction implements IDirectoryAction
     /**
      * {@inheritDoc}
      */
-    public DirectoryActionResult process( HttpServletRequest request, HttpServletResponse response,
+    public IPluginActionResult process( HttpServletRequest request, HttpServletResponse response,
         AdminUser adminUser, DirectoryAdminSearchFields sessionFields )
         throws AccessDeniedException
     {
-        DirectoryActionResult result = new DirectoryActionResult(  );
+    	IPluginActionResult result = new DefaultPluginActionResult(  );
 
         String strIdDirectory = request.getParameter( PARAMETER_ID_DIRECTORY );
 
