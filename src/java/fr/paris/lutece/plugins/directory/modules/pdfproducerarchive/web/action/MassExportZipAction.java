@@ -33,13 +33,6 @@
  */
 package fr.paris.lutece.plugins.directory.modules.pdfproducerarchive.web.action;
 
-import java.util.Map;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import org.apache.commons.lang.StringUtils;
-
 import fr.paris.lutece.plugins.directory.utils.DirectoryUtils;
 import fr.paris.lutece.plugins.directory.web.action.DirectoryAdminSearchFields;
 import fr.paris.lutece.plugins.directory.web.action.IDirectoryAction;
@@ -52,6 +45,13 @@ import fr.paris.lutece.portal.web.pluginaction.AbstractPluginAction;
 import fr.paris.lutece.portal.web.pluginaction.DefaultPluginActionResult;
 import fr.paris.lutece.portal.web.pluginaction.IPluginActionResult;
 import fr.paris.lutece.util.url.UrlItem;
+
+import org.apache.commons.lang.StringUtils;
+
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 
 /**
@@ -77,7 +77,7 @@ public class MassExportZipAction extends AbstractPluginAction<DirectoryAdminSear
      */
     public void fillModel( HttpServletRequest request, AdminUser adminUser, Map<String, Object> model )
     {
-    	// nothing
+        // nothing
     }
 
     /**
@@ -107,11 +107,10 @@ public class MassExportZipAction extends AbstractPluginAction<DirectoryAdminSear
     /**
      * {@inheritDoc}
      */
-    public IPluginActionResult process( HttpServletRequest request, HttpServletResponse response,
-        AdminUser adminUser, DirectoryAdminSearchFields sessionFields )
-        throws AccessDeniedException
+    public IPluginActionResult process( HttpServletRequest request, HttpServletResponse response, AdminUser adminUser,
+        DirectoryAdminSearchFields sessionFields ) throws AccessDeniedException
     {
-    	IPluginActionResult result = new DefaultPluginActionResult(  );
+        IPluginActionResult result = new DefaultPluginActionResult(  );
 
         String strRedirect = StringUtils.EMPTY;
 

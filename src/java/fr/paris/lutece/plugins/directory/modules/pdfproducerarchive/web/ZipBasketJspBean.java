@@ -286,9 +286,8 @@ public class ZipBasketJspBean extends PluginAdminPageJspBean
 
             // Check permissions
             if ( ( record == null ) || ( record.getDirectory(  ).getIdDirectory(  ) != nIdDirectory ) ||
-                    !RBACService.isAuthorized( Directory.RESOURCE_TYPE,
-                        strIdDirectory, DirectoryPDFProducerArchiveResourceIdService.PERMISSION_GENERATE_ZIP,
-                        getUser(  ) ) )
+                    !RBACService.isAuthorized( Directory.RESOURCE_TYPE, strIdDirectory,
+                        DirectoryPDFProducerArchiveResourceIdService.PERMISSION_GENERATE_ZIP, getUser(  ) ) )
             {
                 throw new AccessDeniedException(  );
             }
