@@ -147,10 +147,32 @@ public class DirectoryManageZipBasketService
     }
 
     /**
-     * This method delete multi ZipBasket
-     * @param plugin plugin
-     * @param listIdZipBasket list of id zipbasket
+     * Delete all zip
+     * @param plugin the plugin
+     * @param nIdDirectory the id directory
+     * @param nIdAdminUser the id admin user
+     * @return true if the zip basket can be deleted, false otherwise
      */
+    public boolean deleteAllZipBasket( Plugin plugin, int nIdDirectory, int nIdAdminUser )
+    {
+        updateZipBasketStatus(  );
+
+        for ( ZipBasket zipBasket : loadAllZipBasketByAdminUser( plugin, nIdAdminUser, nIdDirectory ) )
+        {
+            if ( getZipService(  )
+                         .doDeleteZip( Integer.toString( zipBasket.getIdRecord(  ) ), zipBasket.getArchiveItemKey(  ),
+                        nIdAdminUser, nIdDirectory, zipBasket.getZipName(  ) ) )
+            {
+                ZipBasketHome.deleteZipBasket( plugin, zipBasket.getIdZip(  ) );
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
 
     /**
      * this method delete several zip basket
@@ -204,17 +226,17 @@ public class DirectoryManageZipBasketService
 
         for ( ZipBasket zipBasket : listZipBasket )
         {
-            if ( zipBasket.getZipStatus(  ).equals( ConstantsStatusZip.PARAMATER_STATUS_IN_PROGRESS ) ||
-                    zipBasket.getZipStatus(  ).equals( ConstantsStatusZip.PARAMATER_STATUS_PENDING ) )
+            if ( ConstantsStatusZip.PARAMATER_STATUS_IN_PROGRESS.equals( zipBasket.getZipStatus(  ) ) ||
+                    ConstantsStatusZip.PARAMATER_STATUS_PENDING.equals( zipBasket.getZipStatus(  ) ) )
             {
                 String strArchiveStatus = getZipService(  ).getStatutZip( zipBasket.getArchiveItemKey(  ) );
 
-                if ( strArchiveStatus.equals( ARCHIVE_STATE_USED ) )
+                if ( ARCHIVE_STATE_USED.equals( strArchiveStatus ) )
                 {
                     changeZipBasketStatusToInProgress( plugin, zipBasket.getIdZip(  ) );
                 }
 
-                if ( strArchiveStatus.equals( ARCHIVE_STATE_ERROR ) )
+                if ( ARCHIVE_STATE_ERROR.equals( strArchiveStatus ) )
                 {
                     changeZipBasketStatusToFailed( plugin, zipBasket.getIdZip(  ) );
 
@@ -223,7 +245,7 @@ public class DirectoryManageZipBasketService
                     FilesUtils.cleanTemporyZipDirectory( strPathFilesGenerate );
                 }
 
-                if ( strArchiveStatus.equals( ARCHIVE_STATE_FINAL ) )
+                if ( ARCHIVE_STATE_FINAL.equals( strArchiveStatus ) )
                 {
                     String strUrl = getZipService(  ).getUrlZip( zipBasket.getArchiveItemKey(  ) );
 

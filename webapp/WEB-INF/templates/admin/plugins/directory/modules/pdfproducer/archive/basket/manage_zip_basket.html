@@ -62,8 +62,12 @@
 		<div class="content-box-content">
 			<#if list_zipbasket?has_content>
 				<form action="jsp/admin/plugins/directory/modules/pdfproducer/archive/basket/ConfirmExportAllZip.jsp" method="post">
-					<input type="hidden" value="${idDirectory}" name="id_directory">
-					<input class="button" type="submit" value="#i18n{module.directory.pdfproducerarchive.manage_directory.basket.manage.zip.all.export}" name="export_search_result">			
+					<input type="hidden" value="${idDirectory}" name="id_directory" />
+					<input class="button" type="submit" value="#i18n{module.directory.pdfproducerarchive.manage_directory.basket.manage.zip.all.export}" name="export_search_result" />			
+				</form>
+				<form action="jsp/admin/plugins/directory/modules/pdfproducer/archive/basket/ConfirmRemoveAllZip.jsp" method="post">
+					<input type="hidden" value="${idDirectory}" name="id_directory" />
+					<input class="button" type="submit" value="#i18n{module.directory.pdfproducerarchive.manage_directory.basket.manage.zip.all.remove}" name="remove_all_zip" />
 				</form>
 				<table name="results_list" id="results_list">
 					<tr>
@@ -117,8 +121,12 @@
 						</#list>						
 				</table>
 				<form action="jsp/admin/plugins/directory/modules/pdfproducer/archive/basket/ConfirmExportAllZip.jsp" method="post">
-					<input type="hidden" value="${idDirectory}" name="id_directory">
-					<input class="button" type="submit" value="#i18n{module.directory.pdfproducerarchive.manage_directory.basket.manage.zip.all.export}" name="export_search_result">			
+					<input type="hidden" value="${idDirectory}" name="id_directory" />
+					<input class="button" type="submit" value="#i18n{module.directory.pdfproducerarchive.manage_directory.basket.manage.zip.all.export}" name="export_search_result" />			
+				</form>
+				<form action="jsp/admin/plugins/directory/modules/pdfproducer/archive/basket/ConfirmRemoveAllZip.jsp" method="post">
+					<input type="hidden" value="${idDirectory}" name="id_directory" />
+					<input class="button" type="submit" value="#i18n{module.directory.pdfproducerarchive.manage_directory.basket.manage.zip.all.remove}" name="remove_all_zip" />
 				</form>
 			<#else>
 				#i18n{module.directory.pdfproducerarchive.manage_directory.basket.manage.zip.empty}

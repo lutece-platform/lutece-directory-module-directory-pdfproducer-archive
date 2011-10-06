@@ -37,6 +37,7 @@ import fr.paris.lutece.plugins.archiveclient.service.archive.IArchiveClientServi
 import fr.paris.lutece.plugins.archiveclient.service.util.ArchiveClientConstants;
 import fr.paris.lutece.plugins.directory.modules.pdfproducer.utils.PDFUtils;
 import fr.paris.lutece.plugins.directory.modules.pdfproducerarchive.utils.FilesUtils;
+import fr.paris.lutece.plugins.directory.utils.DirectoryUtils;
 import fr.paris.lutece.portal.service.util.AppLogService;
 import fr.paris.lutece.portal.service.util.AppPropertiesService;
 import fr.paris.lutece.util.string.StringUtil;
@@ -150,14 +151,14 @@ public final class ZipService
     {
         String strArchiveStatus = _archiveClientService.informationArchive( nArchiveItemKey );
 
-        if ( !strArchiveStatus.equals( ARCHIVE_STATE_USED ) )
+        if ( !ARCHIVE_STATE_USED.equals( strArchiveStatus ) )
         {
             String strPathFilesGenerate = FilesUtils.builNamePathBasket( nIdKeyUser, nIdDirectory ) + File.separator +
                 zipName;
             String strPathZipGenerate = FilesUtils.builNamePathBasket( nIdKeyUser, nIdDirectory ) + File.separator +
                 AppPropertiesService.getProperty( PROPERTY_ZIP_NAME_REPOSITORY );
 
-            if ( !strIdRecord.equals( "-1" ) )
+            if ( DirectoryUtils.convertStringToInt( strIdRecord ) != DirectoryUtils.CONSTANT_ID_NULL )
             {
                 FilesUtils.cleanTemporyZipDirectory( strPathFilesGenerate );
                 FilesUtils.cleanTemporyZipDirectory( strPathZipGenerate + File.separator + zipName +

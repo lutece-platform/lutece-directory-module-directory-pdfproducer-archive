@@ -98,6 +98,9 @@ public class ZipBasketJspBean extends PluginAdminPageJspBean
     private static final String MESSAGE_EXPORT_ALL_ZIP_ALREADY_EXISTS = "module.directory.pdfproducerarchive.message.error_export_all_zip.already_exists";
     private static final String MESSAGE_ERROR_ADD_ZIP_TO_BASKET_ALLEXPORT = "module.directory.pdfproducerarchive.message.error_add_zip_to_basket.allexport";
     private static final String MESSAGE_ERROR_REMOVE_ZIP_TO_BASKET_ALLEXPORT = "module.directory.pdfproducerarchive.message.error_remove_zip_to_basket.allexport";
+    private static final String MESSAGE_CONFIRM_REMOVE_ALL_ZIP = "module.directory.pdfproducerarchive.message.confirm_remove_all_zip";
+    private static final String MESSAGE_REMOVE_ALL_ZIP = "module.directory.pdfproducerarchive.message.remove_all_zip";
+    private static final String MESSAGE_ERROR_REMOVE_ALL_ZIP = "module.directory.pdfproducerarchive.message.error_remove_all_zip";
 
     //Markers
     private static final String MARK_ID_DIRECTORY = "idDirectory";
@@ -111,6 +114,7 @@ public class ZipBasketJspBean extends PluginAdminPageJspBean
     private static final String JSP_DO_ADD_ZIP_TO_BASKET = "jsp/admin/plugins/directory/modules/pdfproducer/archive/basket/AddZipToBasket.jsp";
     private static final String JSP_DO_REMOVE_ZIP_TO_BASKET = "jsp/admin/plugins/directory/modules/pdfproducer/archive/basket/DoRemoveZipBasket.jsp";
     private static final String JSP_DO_EXPORT_ALL_ZIP = "jsp/admin/plugins/directory/modules/pdfproducer/archive/basket/ExportAllZip.jsp";
+    private static final String JSP_DO_REMOVE_ALL_ZIP = "jsp/admin/plugins/directory/modules/pdfproducer/archive/basket/RemoveAllZip.jsp";
 
     //Parameters
     private static final String PARAMETER_ID_DIRECTORY = DirectoryUtils.PARAMETER_ID_DIRECTORY;
@@ -387,7 +391,8 @@ public class ZipBasketJspBean extends PluginAdminPageJspBean
         boolean bAllExportAlreadyExists = _manageZipBasketService.existsZipBasket( nIdAdminUser, getPlugin(  ),
                 nIdDirectory, -1 );
 
-        if ( strIdRecord.equals( "-1" ) || ( !strIdRecord.equals( "-1" ) && !bAllExportAlreadyExists ) )
+        if ( ( DirectoryUtils.convertStringToInt( strIdRecord ) == DirectoryUtils.CONSTANT_ID_NULL ) ||
+                !bAllExportAlreadyExists )
         {
             if ( _manageZipBasketService.deleteZipBasket( getPlugin(  ),
                         DirectoryUtils.convertStringToInt( strIdZipBasket ), strIdRecord ) )
@@ -395,17 +400,13 @@ public class ZipBasketJspBean extends PluginAdminPageJspBean
                 return AdminMessageService.getMessageUrl( request, MESSAGE_REMOVE_ZIP_TO_BASKET, url.getUrl(  ),
                     AdminMessage.TYPE_INFO );
             }
-            else
-            {
-                return AdminMessageService.getMessageUrl( request, MESSAGE_ERROR_REMOVE_ZIP_TO_BASKET, url.getUrl(  ),
-                    AdminMessage.TYPE_STOP );
-            }
+
+            return AdminMessageService.getMessageUrl( request, MESSAGE_ERROR_REMOVE_ZIP_TO_BASKET, url.getUrl(  ),
+                AdminMessage.TYPE_STOP );
         }
-        else
-        {
-            return AdminMessageService.getMessageUrl( request, MESSAGE_ERROR_REMOVE_ZIP_TO_BASKET_ALLEXPORT,
-                url.getUrl(  ), AdminMessage.TYPE_STOP );
-        }
+
+        return AdminMessageService.getMessageUrl( request, MESSAGE_ERROR_REMOVE_ZIP_TO_BASKET_ALLEXPORT,
+            url.getUrl(  ), AdminMessage.TYPE_STOP );
     }
 
     /**
@@ -479,6 +480,52 @@ public class ZipBasketJspBean extends PluginAdminPageJspBean
             return AdminMessageService.getMessageUrl( request, MESSAGE_ERROR_EXPORT_ALL_ZIP, url.getUrl(  ),
                 AdminMessage.TYPE_STOP );
         }
+    }
+
+    /**
+     * Gets the confirmation to export all zip
+     * @param request request
+     * @return message
+     */
+    public String getConfirmRemoveAllZipBasket( HttpServletRequest request )
+    {
+        String strIdDirectory = request.getParameter( PARAMETER_ID_DIRECTORY );
+
+        UrlItem url = new UrlItem( JSP_DO_REMOVE_ALL_ZIP );
+        url.addParameter( PARAMETER_ID_DIRECTORY, DirectoryUtils.convertStringToInt( strIdDirectory ) );
+
+        return AdminMessageService.getMessageUrl( request, MESSAGE_CONFIRM_REMOVE_ALL_ZIP, url.getUrl(  ),
+            AdminMessage.TYPE_CONFIRMATION );
+    }
+
+    /**
+     * Remove all zip to basket
+     * @param request request
+     * @return message
+     */
+    public String removeAllZip( HttpServletRequest request )
+    {
+        String strIdDirectory = request.getParameter( PARAMETER_ID_DIRECTORY );
+
+        int nIdDirectory = DirectoryUtils.convertStringToInt( strIdDirectory );
+        int nIdAdminUser = getUser(  ).getUserId(  );
+
+        if ( nIdDirectory != DirectoryUtils.CONSTANT_ID_NULL )
+        {
+            UrlItem url = new UrlItem( JSP_MANAGE_ZIPBASKET );
+            url.addParameter( PARAMETER_ID_DIRECTORY, nIdDirectory );
+
+            if ( _manageZipBasketService.deleteAllZipBasket( getPlugin(  ), nIdDirectory, nIdAdminUser ) )
+            {
+                return AdminMessageService.getMessageUrl( request, MESSAGE_REMOVE_ALL_ZIP, url.getUrl(  ),
+                    AdminMessage.TYPE_INFO );
+            }
+
+            return AdminMessageService.getMessageUrl( request, MESSAGE_ERROR_REMOVE_ALL_ZIP, url.getUrl(  ),
+                AdminMessage.TYPE_STOP );
+        }
+
+        return AdminMessageService.getMessageUrl( request, Messages.MANDATORY_FIELDS, AdminMessage.TYPE_STOP );
     }
 
     /**
