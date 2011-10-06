@@ -218,7 +218,7 @@ public class ZipBasketJspBean extends PluginAdminPageJspBean
                 Record record = RecordHome.findByPrimaryKey( nIdDirectoryRecord, getPlugin(  ) );
 
                 if ( ( record == null ) || ( record.getDirectory(  ).getIdDirectory(  ) != nIdDirectory ) ||
-                        !RBACService.isAuthorized( DirectoryPDFProducerArchiveResourceIdService.RESOURCE_TYPE,
+                        !RBACService.isAuthorized( Directory.RESOURCE_TYPE,
                             Integer.toString( record.getDirectory(  ).getIdDirectory(  ) ),
                             DirectoryPDFProducerArchiveResourceIdService.PERMISSION_GENERATE_ZIP, getUser(  ) ) )
                 {
@@ -286,7 +286,7 @@ public class ZipBasketJspBean extends PluginAdminPageJspBean
 
             // Check permissions
             if ( ( record == null ) || ( record.getDirectory(  ).getIdDirectory(  ) != nIdDirectory ) ||
-                    !RBACService.isAuthorized( DirectoryPDFProducerArchiveResourceIdService.RESOURCE_TYPE,
+                    !RBACService.isAuthorized( Directory.RESOURCE_TYPE,
                         strIdDirectory, DirectoryPDFProducerArchiveResourceIdService.PERMISSION_GENERATE_ZIP,
                         getUser(  ) ) )
             {

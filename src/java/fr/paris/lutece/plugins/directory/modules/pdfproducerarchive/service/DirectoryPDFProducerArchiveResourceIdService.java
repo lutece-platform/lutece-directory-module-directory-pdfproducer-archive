@@ -33,13 +33,16 @@
  */
 package fr.paris.lutece.plugins.directory.modules.pdfproducerarchive.service;
 
+import java.util.Locale;
+
+import fr.paris.lutece.plugins.directory.business.Directory;
+import fr.paris.lutece.plugins.directory.service.DirectoryPlugin;
+import fr.paris.lutece.plugins.directory.service.DirectoryResourceIdService;
 import fr.paris.lutece.portal.service.rbac.Permission;
 import fr.paris.lutece.portal.service.rbac.ResourceIdService;
 import fr.paris.lutece.portal.service.rbac.ResourceType;
 import fr.paris.lutece.portal.service.rbac.ResourceTypeManager;
 import fr.paris.lutece.util.ReferenceList;
-
-import java.util.Locale;
 
 
 /**
@@ -50,9 +53,7 @@ public class DirectoryPDFProducerArchiveResourceIdService extends ResourceIdServ
 {
     /** Permission for generate zip */
     public static final String PERMISSION_GENERATE_ZIP = "ADDZIPBASKET";
-
-    /** Permission for mylutece user visualisation */
-    public static final String RESOURCE_TYPE = "DIRECTORY_PDFPRODUCER_ARCHIVE_TYPE";
+    private static final String PROPERTY_LABEL_RESOURCE_TYPE = "directory.permission.label.resource_type_directory";
     private static final String PROPERTY_LABEL_GENERATE_ZIP = "module.directory.pdfproducerarchive.permission.label.generate_zip";
 
     /**
@@ -76,11 +77,16 @@ public class DirectoryPDFProducerArchiveResourceIdService extends ResourceIdServ
      */
     public void register(  )
     {
-        ResourceType rt = new ResourceType(  );
-        rt.setResourceIdServiceClass( DirectoryPDFProducerArchiveResourceIdService.class.getName(  ) );
-        rt.setPluginName( DirectoryPDFProducerArchivePlugin.PLUGIN_NAME );
-        rt.setResourceTypeKey( RESOURCE_TYPE );
-        rt.setResourceTypeLabelKey( PROPERTY_LABEL_GENERATE_ZIP );
+    	// Override the resource type DIRECTORY_DIRECTORY_TYPE
+    	ResourceType rt = ResourceTypeManager.getResourceType( Directory.RESOURCE_TYPE );
+    	if ( rt == null )
+    	{
+    		rt = new ResourceType(  );
+    		rt.setResourceIdServiceClass( DirectoryResourceIdService.class.getName(  ) );
+    		rt.setPluginName( DirectoryPlugin.PLUGIN_NAME );
+    		rt.setResourceTypeKey( Directory.RESOURCE_TYPE );
+    		rt.setResourceTypeLabelKey( PROPERTY_LABEL_RESOURCE_TYPE );
+    	}
 
         Permission p = new Permission(  );
         p.setPermissionKey( PERMISSION_GENERATE_ZIP );
