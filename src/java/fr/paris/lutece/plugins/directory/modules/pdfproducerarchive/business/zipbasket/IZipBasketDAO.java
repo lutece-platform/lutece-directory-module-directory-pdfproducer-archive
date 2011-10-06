@@ -35,6 +35,7 @@ package fr.paris.lutece.plugins.directory.modules.pdfproducerarchive.business.zi
 
 import fr.paris.lutece.portal.service.plugin.Plugin;
 
+import java.util.Date;
 import java.util.List;
 
 
@@ -119,4 +120,12 @@ public interface IZipBasketDAO
      * @return the zipbasket by the id
      */
     ZipBasket loadZipBasket( Plugin plugin, int nIdZipBasket );
+
+    /**
+     * Get the list of zip basket filtered by date
+     * @param plugin the plugin
+     * @param dateExpiry the date expiry
+     * @return a list of {@link ZipBasket}
+     */
+    List<ZipBasket> loadZipBasketByDate( Plugin plugin, Date dateExpiry );
 }

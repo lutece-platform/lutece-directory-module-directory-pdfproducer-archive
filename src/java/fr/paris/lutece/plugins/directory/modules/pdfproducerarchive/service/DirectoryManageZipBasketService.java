@@ -51,6 +51,7 @@ import org.apache.commons.lang.StringUtils;
 
 import java.io.File;
 
+import java.util.Date;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
@@ -115,6 +116,17 @@ public class DirectoryManageZipBasketService
     public List<ZipBasket> loadAllZipBasketByAdminUser( Plugin plugin, int nIdAdminUser, int nIdDirectory )
     {
         return ZipBasketHome.loadAllZipBasketByAdminUser( plugin, nIdAdminUser, nIdDirectory );
+    }
+
+    /**
+     * Find zip basket by date
+     * @param plugin the plugin
+     * @param dateExpiry the date expiry
+     * @return a list of {@link ZipBasket}
+     */
+    public List<ZipBasket> loadZipBasketByDate( Plugin plugin, Date dateExpiry )
+    {
+        return ZipBasketHome.loadZipBasketByDate( plugin, dateExpiry );
     }
 
     /**

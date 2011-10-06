@@ -37,6 +37,7 @@ import fr.paris.lutece.plugins.directory.modules.pdfproducerarchive.service.Dire
 import fr.paris.lutece.portal.service.plugin.Plugin;
 import fr.paris.lutece.portal.service.spring.SpringContextService;
 
+import java.util.Date;
 import java.util.List;
 
 
@@ -156,5 +157,16 @@ public final class ZipBasketHome
     public static ZipBasket loadZipBasket( Plugin plugin, int nIdZipBasket )
     {
         return _dao.loadZipBasket( plugin, nIdZipBasket );
+    }
+
+    /**
+     * Find all zip baskets by date
+     * @param plugin the plugin
+     * @param dateExpiry the date expiry
+     * @return a list of {@link ZipBasket}
+     */
+    public static List<ZipBasket> loadZipBasketByDate( Plugin plugin, Date dateExpiry )
+    {
+        return _dao.loadZipBasketByDate( plugin, dateExpiry );
     }
 }

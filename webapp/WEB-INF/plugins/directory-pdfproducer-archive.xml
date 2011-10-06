@@ -30,7 +30,19 @@
 				directory.daemon.zipBasketCheckStatus.description
 			</daemon-description>
 			<daemon-class>
-				fr.paris.lutece.plugins.directory.modules.pdfproducerarchive.service.ZipBasketCheckStatus
+				fr.paris.lutece.plugins.directory.modules.pdfproducerarchive.service.daemon.ZipBasketCheckStatusDaemon
+			</daemon-class>
+		</daemon>
+		<daemon>
+			<daemon-id>zipCleaner</daemon-id>
+			<daemon-name>
+				directory.daemon.zipCleaner.name
+			</daemon-name>
+			<daemon-description>
+				directory.daemon.zipCleaner.description
+			</daemon-description>
+			<daemon-class>
+				fr.paris.lutece.plugins.directory.modules.pdfproducerarchive.service.daemon.ZipCleanerDaemon
 			</daemon-class>
 		</daemon>
 	</daemons>

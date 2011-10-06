@@ -31,8 +31,10 @@
  *
  * License 1.0
  */
-package fr.paris.lutece.plugins.directory.modules.pdfproducerarchive.service;
+package fr.paris.lutece.plugins.directory.modules.pdfproducerarchive.service.daemon;
 
+import fr.paris.lutece.plugins.directory.modules.pdfproducerarchive.service.DirectoryManageZipBasketService;
+import fr.paris.lutece.plugins.directory.modules.pdfproducerarchive.service.DirectoryPDFProducerArchivePlugin;
 import fr.paris.lutece.portal.service.daemon.Daemon;
 import fr.paris.lutece.portal.service.spring.SpringContextService;
 
@@ -41,7 +43,7 @@ import fr.paris.lutece.portal.service.spring.SpringContextService;
  * ZipBasketCheckStatus
  *
  */
-public class ZipBasketCheckStatus extends Daemon
+public class ZipBasketCheckStatusDaemon extends Daemon
 {
     /**
     * {@inheritDoc}

@@ -40,6 +40,7 @@ import fr.paris.lutece.util.sql.DAOUtil;
 import java.sql.Timestamp;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
 
@@ -59,6 +60,7 @@ public class ZipBasketDAO implements IZipBasketDAO
     private static final String SQL_QUERY_UPDATE_STATUS = "UPDATE directory_zip_basket SET zip_state = ? , date_creation = ? WHERE id_zip_basket = ? ";
     private static final String SQL_QUERY_UPDATE_URL = "UPDATE directory_zip_basket SET url = ? , date_creation = ? WHERE id_zip_basket = ? ";
     private static final String SQL_QUERY_SELECT = "SELECT id_zip_basket, name, url, zip_state, id_user, id_directory, id_record, archive_item_key, date_creation FROM directory_zip_basket WHERE id_zip_basket = ? ";
+    private static final String SQL_QUERY_SELECT_BY_DATE = " SELECT id_zip_basket, name, url, zip_state, id_user, id_directory, id_record, archive_item_key, date_creation FROM directory_zip_basket WHERE date_creation <= ? ";
 
     /**
      * Gets a new primary key
@@ -269,5 +271,38 @@ public class ZipBasketDAO implements IZipBasketDAO
         daoUtil.free(  );
 
         return null;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public List<ZipBasket> loadZipBasketByDate( Plugin plugin, Date dateExpiry )
+    {
+        List<ZipBasket> lisZipBasket = new ArrayList<ZipBasket>(  );
+
+        DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECT_BY_DATE, plugin );
+        daoUtil.setDate( 1, new java.sql.Date( dateExpiry.getTime(  ) ) );
+        daoUtil.executeQuery(  );
+
+        while ( daoUtil.next(  ) )
+        {
+            int nIndex = 1;
+            ZipBasket zipBasket = new ZipBasket(  );
+            zipBasket.setIdZip( daoUtil.getInt( nIndex++ ) );
+            zipBasket.setZipName( daoUtil.getString( nIndex++ ) );
+            zipBasket.setZipUrl( daoUtil.getString( nIndex++ ) );
+            zipBasket.setZipStatus( daoUtil.getString( nIndex++ ) );
+            zipBasket.setIdAdminUser( daoUtil.getInt( nIndex++ ) );
+            zipBasket.setIdDirectory( daoUtil.getInt( nIndex++ ) );
+            zipBasket.setIdRecord( daoUtil.getInt( nIndex++ ) );
+            zipBasket.setArchiveItemKey( daoUtil.getInt( nIndex++ ) );
+            zipBasket.setDateZipAdded( daoUtil.getTimestamp( nIndex++ ) );
+
+            lisZipBasket.add( zipBasket );
+        }
+
+        daoUtil.free(  );
+
+        return lisZipBasket;
     }
 }
