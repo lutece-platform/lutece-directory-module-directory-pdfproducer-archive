@@ -33,13 +33,17 @@
  */
 package fr.paris.lutece.plugins.directory.modules.pdfproducerarchive.web.action;
 
+import fr.paris.lutece.plugins.directory.business.Directory;
+import fr.paris.lutece.plugins.directory.modules.pdfproducerarchive.service.DirectoryPDFProducerArchiveResourceIdService;
 import fr.paris.lutece.plugins.directory.utils.DirectoryUtils;
 import fr.paris.lutece.plugins.directory.web.action.DirectoryAdminSearchFields;
 import fr.paris.lutece.plugins.directory.web.action.IDirectoryAction;
+import fr.paris.lutece.portal.business.rbac.RBAC;
 import fr.paris.lutece.portal.business.user.AdminUser;
 import fr.paris.lutece.portal.service.admin.AccessDeniedException;
 import fr.paris.lutece.portal.service.message.AdminMessage;
 import fr.paris.lutece.portal.service.message.AdminMessageService;
+import fr.paris.lutece.portal.service.rbac.RBACService;
 import fr.paris.lutece.portal.service.util.AppPathService;
 import fr.paris.lutece.portal.web.pluginaction.AbstractPluginAction;
 import fr.paris.lutece.portal.web.pluginaction.DefaultPluginActionResult;
@@ -72,12 +76,17 @@ public class MassExportZipAction extends AbstractPluginAction<DirectoryAdminSear
     // PARAMETERS
     private static final String PARAMETER_MASS_ZIP_BASKET_ACTION = "mass_export_zip.x";
 
+    // MARKS
+    private static final String MARK_PERMISSION_GENERATE_ZIP = "permission_generate_zip";
+
     /**
      * {@inheritDoc}
      */
     public void fillModel( HttpServletRequest request, AdminUser adminUser, Map<String, Object> model )
     {
-        // nothing
+        model.put( MARK_PERMISSION_GENERATE_ZIP,
+            RBACService.isAuthorized( Directory.RESOURCE_TYPE, RBAC.WILDCARD_RESOURCES_ID,
+                DirectoryPDFProducerArchiveResourceIdService.PERMISSION_GENERATE_ZIP, adminUser ) );
     }
 
     /**
