@@ -34,6 +34,13 @@
 package fr.paris.lutece.plugins.directory.modules.pdfproducerarchive.service;
 
 import fr.paris.lutece.plugins.archiveclient.service.util.ArchiveClientConstants;
+import fr.paris.lutece.plugins.directory.business.Directory;
+import fr.paris.lutece.plugins.directory.business.DirectoryHome;
+import fr.paris.lutece.plugins.directory.business.Record;
+import fr.paris.lutece.plugins.directory.business.RecordField;
+import fr.paris.lutece.plugins.directory.business.RecordFieldFilter;
+import fr.paris.lutece.plugins.directory.business.RecordFieldHome;
+import fr.paris.lutece.plugins.directory.business.RecordHome;
 import fr.paris.lutece.plugins.directory.modules.pdfproducer.service.DirectoryPDFProducerPlugin;
 import fr.paris.lutece.plugins.directory.modules.pdfproducerarchive.business.zipbasket.ZipBasket;
 import fr.paris.lutece.plugins.directory.modules.pdfproducerarchive.business.zipbasket.ZipBasketAction;
@@ -42,8 +49,10 @@ import fr.paris.lutece.plugins.directory.modules.pdfproducerarchive.business.zip
 import fr.paris.lutece.plugins.directory.modules.pdfproducerarchive.utils.ConstantsStatusZip;
 import fr.paris.lutece.plugins.directory.modules.pdfproducerarchive.utils.FilesUtils;
 import fr.paris.lutece.plugins.directory.service.DirectoryPlugin;
+import fr.paris.lutece.portal.business.user.AdminUser;
 import fr.paris.lutece.portal.service.plugin.Plugin;
 import fr.paris.lutece.portal.service.plugin.PluginService;
+import fr.paris.lutece.portal.service.rbac.RBACService;
 import fr.paris.lutece.portal.service.spring.SpringContextService;
 import fr.paris.lutece.portal.service.util.AppPropertiesService;
 
@@ -53,6 +62,7 @@ import java.io.File;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -69,8 +79,6 @@ public class DirectoryManageZipBasketService
     public static final String PROPERTY_ZIP_NAME_REPOSITORY = "directory.zipbasket.name_zip_repository";
     public static final String EXTENSION_FILE_ZIP = ".zip";
     public static final String EXTENSION_FILE_PDF = ".pdf";
-
-    //private IArchiveClientService _archiveClientService;
 
     /**
      * this method builds different repository to stock files and generate a PDF and a zip file of this repository
@@ -197,6 +205,42 @@ public class DirectoryManageZipBasketService
     }
 
     /**
+     * Get the directory from a given id directory
+     * @param nIdDirectory the id directory
+     * @return the directory
+     */
+    public Directory getDirectory( int nIdDirectory )
+    {
+        Plugin pluginDirectory = PluginService.getPlugin( DirectoryPlugin.PLUGIN_NAME );
+
+        return DirectoryHome.findByPrimaryKey( nIdDirectory, pluginDirectory );
+    }
+
+    /**
+     * Get the record from a given id record
+     * @param nIdRecord the id record
+     * @return the record
+     */
+    public Record getRecord( int nIdRecord )
+    {
+        Plugin pluginDirectory = PluginService.getPlugin( DirectoryPlugin.PLUGIN_NAME );
+
+        return RecordHome.findByPrimaryKey( nIdRecord, pluginDirectory );
+    }
+
+    /**
+     * Get the list of record fields by a filter
+     * @param filter the filter
+     * @return a list of record fields
+     */
+    public List<RecordField> getRecordFields( RecordFieldFilter filter )
+    {
+        Plugin pluginDirectory = PluginService.getPlugin( DirectoryPlugin.PLUGIN_NAME );
+
+        return RecordFieldHome.getRecordFieldList( filter, pluginDirectory );
+    }
+
+    /**
      * this method change zip file status to in progress and modify the date
      * @param plugin plugin
      * @param nIdZipBasket id of the zipbasket
@@ -299,12 +343,18 @@ public class DirectoryManageZipBasketService
     /**
      * get all actions for zipbasket by its status
      * @param nState status of zipbasket
+     * @param locale the locale
+     * @param directory the directory
+     * @param user the user
      * @param plugin plugin
      * @return list of actions
      */
-    public List<ZipBasketAction> selectActionsByZipBasketState( int nState, Plugin plugin )
+    public List<ZipBasketAction> selectActionsByZipBasketState( int nState, Locale locale, Directory directory,
+        AdminUser user, Plugin plugin )
     {
-        return ZipBasketActionHome.selectActionsByZipBasketState( nState, plugin );
+        List<ZipBasketAction> listActions = ZipBasketActionHome.selectActionsByZipBasketState( nState, locale, plugin );
+
+        return (List<ZipBasketAction>) RBACService.getAuthorizedActionsCollection( listActions, directory, user );
     }
 
     /**

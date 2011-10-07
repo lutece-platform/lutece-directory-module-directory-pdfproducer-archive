@@ -77,13 +77,13 @@ public final class ZipService
 
     /**
      * Method to generate zip
-         * @param request request
-         * @param strName directory name
-         * @param nIdKeyUser id key user
-         * @param nIdDirectory id directory
-         * @param listIdEntryConfig config to build pdf
-         * @return the archive id
-         */
+     * @param request request
+     * @param strName directory name
+     * @param nIdKeyUser id key user
+     * @param nIdDirectory id directory
+     * @param listIdEntryConfig config to build pdf
+     * @return the archive id
+     */
     public int doGeneratePDFAndZip( HttpServletRequest request, String strName, int nIdKeyUser, int nIdDirectory,
         List<Integer> listIdEntryConfig )
     {

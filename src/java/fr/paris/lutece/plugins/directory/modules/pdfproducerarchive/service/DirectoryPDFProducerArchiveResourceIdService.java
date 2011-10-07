@@ -51,10 +51,15 @@ import java.util.Locale;
  */
 public class DirectoryPDFProducerArchiveResourceIdService extends ResourceIdService
 {
-    /** Permission for generate zip */
+    // PERMISSIONS
     public static final String PERMISSION_GENERATE_ZIP = "ADDZIPBASKET";
-    private static final String PROPERTY_LABEL_RESOURCE_TYPE = "directory.permission.label.resource_type_directory";
+    public static final String PERMISSION_DOWNLOAD_ZIP = "DOWNLOAD_ZIP";
+    public static final String PERMISSION_DELETE_ZIP = "DELETE_ZIP";
+
+    // PROPERTIES
     private static final String PROPERTY_LABEL_GENERATE_ZIP = "module.directory.pdfproducerarchive.permission.label.generate_zip";
+    private static final String PROPERTY_LABEL_DOWNLOAD_ZIP = "module.directory.pdfproducerarchive.permission.label.download_zip";
+    private static final String PROPERTY_LABEL_DELETE_ZIP = "module.directory.pdfproducerarchive.permission.label.delete_zip";
 
     /**
      * {@inheritDoc}
@@ -86,12 +91,22 @@ public class DirectoryPDFProducerArchiveResourceIdService extends ResourceIdServ
             rt.setResourceIdServiceClass( DirectoryResourceIdService.class.getName(  ) );
             rt.setPluginName( DirectoryPlugin.PLUGIN_NAME );
             rt.setResourceTypeKey( Directory.RESOURCE_TYPE );
-            rt.setResourceTypeLabelKey( PROPERTY_LABEL_RESOURCE_TYPE );
+            rt.setResourceTypeLabelKey( DirectoryResourceIdService.PROPERTY_LABEL_RESOURCE_TYPE );
         }
 
         Permission p = new Permission(  );
         p.setPermissionKey( PERMISSION_GENERATE_ZIP );
         p.setPermissionTitleKey( PROPERTY_LABEL_GENERATE_ZIP );
+        rt.registerPermission( p );
+
+        p = new Permission(  );
+        p.setPermissionKey( PERMISSION_DOWNLOAD_ZIP );
+        p.setPermissionTitleKey( PROPERTY_LABEL_DOWNLOAD_ZIP );
+        rt.registerPermission( p );
+
+        p = new Permission(  );
+        p.setPermissionKey( PERMISSION_DELETE_ZIP );
+        p.setPermissionTitleKey( PROPERTY_LABEL_DELETE_ZIP );
         rt.registerPermission( p );
 
         ResourceTypeManager.registerResourceType( rt );

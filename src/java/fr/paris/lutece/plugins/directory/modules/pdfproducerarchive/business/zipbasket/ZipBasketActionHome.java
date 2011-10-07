@@ -34,10 +34,12 @@
 package fr.paris.lutece.plugins.directory.modules.pdfproducerarchive.business.zipbasket;
 
 import fr.paris.lutece.plugins.directory.modules.pdfproducerarchive.service.DirectoryPDFProducerArchivePlugin;
+import fr.paris.lutece.portal.service.i18n.I18nService;
 import fr.paris.lutece.portal.service.plugin.Plugin;
 import fr.paris.lutece.portal.service.spring.SpringContextService;
 
 import java.util.List;
+import java.util.Locale;
 
 
 /**
@@ -58,11 +60,14 @@ public final class ZipBasketActionHome
     /**
      * get all actions for zipbasket by its status
      * @param nState status of zipbasket
+     * @param locale the locale
      * @param plugin plugin
      * @return list of actions
      */
-    public static List<ZipBasketAction> selectActionsByZipBasketState( int nState, Plugin plugin )
+    public static List<ZipBasketAction> selectActionsByZipBasketState( int nState, Locale locale, Plugin plugin )
     {
-        return _dao.selectActionsByZipBasketState( nState, plugin );
+        List<ZipBasketAction> listActions = _dao.selectActionsByZipBasketState( nState, plugin );
+
+        return (List<ZipBasketAction>) I18nService.localizeCollection( listActions, locale );
     }
 }

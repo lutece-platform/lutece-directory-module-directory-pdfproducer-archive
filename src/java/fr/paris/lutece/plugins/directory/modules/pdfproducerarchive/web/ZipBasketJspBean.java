@@ -34,29 +34,22 @@
 package fr.paris.lutece.plugins.directory.modules.pdfproducerarchive.web;
 
 import fr.paris.lutece.plugins.directory.business.Directory;
-import fr.paris.lutece.plugins.directory.business.DirectoryHome;
 import fr.paris.lutece.plugins.directory.business.Record;
 import fr.paris.lutece.plugins.directory.business.RecordField;
 import fr.paris.lutece.plugins.directory.business.RecordFieldFilter;
-import fr.paris.lutece.plugins.directory.business.RecordFieldHome;
-import fr.paris.lutece.plugins.directory.business.RecordHome;
 import fr.paris.lutece.plugins.directory.modules.pdfproducer.business.producerconfig.DefaultConfigProducer;
 import fr.paris.lutece.plugins.directory.modules.pdfproducer.business.producerconfig.IConfigProducer;
 import fr.paris.lutece.plugins.directory.modules.pdfproducer.service.ConfigProducerService;
 import fr.paris.lutece.plugins.directory.modules.pdfproducer.service.DirectoryPDFProducerPlugin;
 import fr.paris.lutece.plugins.directory.modules.pdfproducer.utils.PDFUtils;
 import fr.paris.lutece.plugins.directory.modules.pdfproducerarchive.business.zipbasket.ZipBasket;
-import fr.paris.lutece.plugins.directory.modules.pdfproducerarchive.business.zipbasket.ZipBasketAction;
 import fr.paris.lutece.plugins.directory.modules.pdfproducerarchive.service.DirectoryManageZipBasketService;
 import fr.paris.lutece.plugins.directory.modules.pdfproducerarchive.service.DirectoryPDFProducerArchiveResourceIdService;
 import fr.paris.lutece.plugins.directory.modules.pdfproducerarchive.utils.ConstantsStatusZip;
-import fr.paris.lutece.plugins.directory.service.DirectoryPlugin;
 import fr.paris.lutece.plugins.directory.utils.DirectoryUtils;
 import fr.paris.lutece.portal.service.admin.AccessDeniedException;
 import fr.paris.lutece.portal.service.message.AdminMessage;
 import fr.paris.lutece.portal.service.message.AdminMessageService;
-import fr.paris.lutece.portal.service.plugin.Plugin;
-import fr.paris.lutece.portal.service.plugin.PluginService;
 import fr.paris.lutece.portal.service.rbac.RBACService;
 import fr.paris.lutece.portal.service.spring.SpringContextService;
 import fr.paris.lutece.portal.service.template.AppTemplateService;
@@ -107,6 +100,7 @@ public class ZipBasketJspBean extends PluginAdminPageJspBean
 
     //marker for zipbasket
     private static final String MARK_LIST_ZIPBASKET = "list_zipbasket";
+    private static final String MARK_PERMISSION_DELETE_ZIP = "permission_delete_zip";
 
     // JSP URL
     private static final String JSP_MANAGE_DIRECTORY_RECORD = DirectoryUtils.JSP_MANAGE_DIRECTORY_RECORD;
@@ -134,51 +128,39 @@ public class ZipBasketJspBean extends PluginAdminPageJspBean
      * display the basket basket
      * @param request request
      * @return page to manage zip
+     * @throws AccessDeniedException exception if the user does not have the right
      */
     public String getManageZipToBasket( HttpServletRequest request )
+        throws AccessDeniedException
     {
-        Map<String, Object> model = new HashMap<String, Object>(  );
-
         String strIdDirectory = request.getParameter( PARAMETER_ID_DIRECTORY );
 
-        if ( StringUtils.isNotBlank( strIdDirectory ) && StringUtils.isNumeric( strIdDirectory ) )
+        if ( !RBACService.isAuthorized( Directory.RESOURCE_TYPE, strIdDirectory,
+                    DirectoryPDFProducerArchiveResourceIdService.PERMISSION_GENERATE_ZIP, getUser(  ) ) ||
+                StringUtils.isBlank( strIdDirectory ) || !StringUtils.isNumeric( strIdDirectory ) )
         {
-            model.put( MARK_ID_DIRECTORY, strIdDirectory );
+            throw new AccessDeniedException(  );
+        }
 
-            List<ZipBasket> listZipBasket = _manageZipBasketService.loadAllZipBasketByAdminUser( getPlugin(  ),
-                    getUser(  ).getUserId(  ), DirectoryUtils.convertStringToInt( strIdDirectory ) );
-            model.put( MARK_LIST_ZIPBASKET, listZipBasket );
+        Map<String, Object> model = new HashMap<String, Object>(  );
+        List<ZipBasket> listZipBasket = _manageZipBasketService.loadAllZipBasketByAdminUser( getPlugin(  ),
+                getUser(  ).getUserId(  ), DirectoryUtils.convertStringToInt( strIdDirectory ) );
 
-            List<ZipBasketAction> listZipBasketActionPending = _manageZipBasketService.selectActionsByZipBasketState( DirectoryUtils.convertStringToInt( 
-                        ConstantsStatusZip.PARAMATER_STATUS_PENDING ), getPlugin(  ) );
-            List<ZipBasketAction> listZipBasketActionInProgress = _manageZipBasketService.selectActionsByZipBasketState( DirectoryUtils.convertStringToInt( 
-                        ConstantsStatusZip.PARAMATER_STATUS_IN_PROGRESS ), getPlugin(  ) );
-            List<ZipBasketAction> listZipBasketActionFinished = _manageZipBasketService.selectActionsByZipBasketState( DirectoryUtils.convertStringToInt( 
-                        ConstantsStatusZip.PARAMATER_STATUS_FINISHED ), getPlugin(  ) );
-            List<ZipBasketAction> listZipBasketActionFailed = _manageZipBasketService.selectActionsByZipBasketState( DirectoryUtils.convertStringToInt( 
-                        ConstantsStatusZip.PARAMATER_STATUS_FAILED ), getPlugin(  ) );
+        model.put( MARK_ID_DIRECTORY, strIdDirectory );
+        model.put( MARK_LIST_ZIPBASKET, listZipBasket );
+        model.put( MARK_PERMISSION_DELETE_ZIP,
+            RBACService.isAuthorized( Directory.RESOURCE_TYPE, strIdDirectory,
+                DirectoryPDFProducerArchiveResourceIdService.PERMISSION_DELETE_ZIP, getUser(  ) ) );
 
-            if ( !listZipBasket.isEmpty(  ) )
+        Directory directory = _manageZipBasketService.getDirectory( DirectoryUtils.convertStringToInt( strIdDirectory ) );
+
+        if ( !listZipBasket.isEmpty(  ) && ( directory != null ) )
+        {
+            for ( ZipBasket zipBasket : listZipBasket )
             {
-                for ( ZipBasket zipBasket : listZipBasket )
-                {
-                    if ( zipBasket.getZipStatus(  ).equals( ConstantsStatusZip.PARAMATER_STATUS_PENDING ) )
-                    {
-                        zipBasket.setListZipBasketAction( listZipBasketActionPending );
-                    }
-                    else if ( zipBasket.getZipStatus(  ).equals( ConstantsStatusZip.PARAMATER_STATUS_IN_PROGRESS ) )
-                    {
-                        zipBasket.setListZipBasketAction( listZipBasketActionInProgress );
-                    }
-                    else if ( zipBasket.getZipStatus(  ).equals( ConstantsStatusZip.PARAMATER_STATUS_FINISHED ) )
-                    {
-                        zipBasket.setListZipBasketAction( listZipBasketActionFinished );
-                    }
-                    else // zipBasket.getZipStatus(  ).equals( ConstantsStatusZip.PARAMATER_STATUS_FAILED ) 
-                    {
-                        zipBasket.setListZipBasketAction( listZipBasketActionFailed );
-                    }
-                }
+                zipBasket.setListZipBasketAction( _manageZipBasketService.selectActionsByZipBasketState( 
+                        DirectoryUtils.convertStringToInt( zipBasket.getZipStatus(  ) ), getLocale(  ), directory,
+                        getUser(  ), getPlugin(  ) ) );
             }
         }
 
@@ -208,8 +190,20 @@ public class ZipBasketJspBean extends PluginAdminPageJspBean
             {
                 String strIdDirectoryRecord = listIdsDirectoryRecord[0];
                 int nIdDirectoryRecord = DirectoryUtils.convertStringToInt( strIdDirectoryRecord );
-                Record record = RecordHome.findByPrimaryKey( nIdDirectoryRecord, getPlugin(  ) );
-                strIdDirectory = Integer.toString( record.getDirectory(  ).getIdDirectory(  ) );
+                Record record = _manageZipBasketService.getRecord( nIdDirectoryRecord );
+
+                if ( record != null )
+                {
+                    strIdDirectory = Integer.toString( record.getDirectory(  ).getIdDirectory(  ) );
+                }
+            }
+
+            if ( !RBACService.isAuthorized( Directory.RESOURCE_TYPE, strIdDirectory,
+                        DirectoryPDFProducerArchiveResourceIdService.PERMISSION_GENERATE_ZIP, getUser(  ) ) ||
+                    StringUtils.isBlank( strIdDirectory ) || !StringUtils.isNumeric( strIdDirectory ) )
+            {
+                return AdminMessageService.getMessageUrl( request, Messages.USER_ACCESS_DENIED,
+                    AdminMessage.TYPE_CONFIRMATION );
             }
 
             int nIdDirectory = DirectoryUtils.convertStringToInt( strIdDirectory );
@@ -219,14 +213,11 @@ public class ZipBasketJspBean extends PluginAdminPageJspBean
             for ( String strIdDirectoryRecord : listIdsDirectoryRecord )
             {
                 int nIdDirectoryRecord = DirectoryUtils.convertStringToInt( strIdDirectoryRecord );
-                Record record = RecordHome.findByPrimaryKey( nIdDirectoryRecord, getPlugin(  ) );
+                Record record = _manageZipBasketService.getRecord( nIdDirectoryRecord );
 
-                if ( ( record == null ) || ( record.getDirectory(  ).getIdDirectory(  ) != nIdDirectory ) ||
-                        !RBACService.isAuthorized( Directory.RESOURCE_TYPE,
-                            Integer.toString( record.getDirectory(  ).getIdDirectory(  ) ),
-                            DirectoryPDFProducerArchiveResourceIdService.PERMISSION_GENERATE_ZIP, getUser(  ) ) )
+                if ( ( record == null ) || ( record.getDirectory(  ).getIdDirectory(  ) != nIdDirectory ) )
                 {
-                    throw new AccessDeniedException(  );
+                    return AdminMessageService.getMessageUrl( request, Messages.MANDATORY_FIELDS, AdminMessage.TYPE_STOP );
                 }
 
                 url.addParameter( PARAMETER_ID_DIRECTORY_RECORD, nIdDirectoryRecord );
@@ -248,8 +239,16 @@ public class ZipBasketJspBean extends PluginAdminPageJspBean
     public String addZipToBasket( HttpServletRequest request )
         throws AccessDeniedException
     {
-        String[] listIdsRecord = request.getParameterValues( PARAMETER_ID_DIRECTORY_RECORD );
         String strIdDirectory = request.getParameter( PARAMETER_ID_DIRECTORY );
+
+        if ( !RBACService.isAuthorized( Directory.RESOURCE_TYPE, strIdDirectory,
+                    DirectoryPDFProducerArchiveResourceIdService.PERMISSION_GENERATE_ZIP, getUser(  ) ) )
+        {
+            return AdminMessageService.getMessageUrl( request, Messages.USER_ACCESS_DENIED,
+                AdminMessage.TYPE_CONFIRMATION );
+        }
+
+        String[] listIdsRecord = request.getParameterValues( PARAMETER_ID_DIRECTORY_RECORD );
 
         // Check parameteres
         if ( ( listIdsRecord == null ) || ( listIdsRecord.length == 0 ) || StringUtils.isBlank( strIdDirectory ) )
@@ -259,16 +258,10 @@ public class ZipBasketJspBean extends PluginAdminPageJspBean
 
         // Fetch directory
         int nIdDirectory = DirectoryUtils.convertStringToInt( strIdDirectory );
-        Directory directory = DirectoryHome.findByPrimaryKey( nIdDirectory, getPlugin(  ) );
-
-        if ( directory == null )
-        {
-            throw new AccessDeniedException(  );
-        }
+        Directory directory = _manageZipBasketService.getDirectory( nIdDirectory );
 
         // Fetch config
-        int nIdConfig = _manageConfigProducerService.loadDefaultConfig( getPlugin(  ),
-                DirectoryUtils.convertStringToInt( Integer.toString( directory.getIdDirectory(  ) ) ) );
+        int nIdConfig = _manageConfigProducerService.loadDefaultConfig( getPlugin(  ), nIdDirectory );
         IConfigProducer configProducer = null;
 
         if ( ( nIdConfig == -1 ) || ( nIdConfig == 0 ) )
@@ -286,16 +279,6 @@ public class ZipBasketJspBean extends PluginAdminPageJspBean
         for ( String strIdRecord : listIdsRecord )
         {
             int nIdRecord = DirectoryUtils.convertStringToInt( strIdRecord );
-            Record record = RecordHome.findByPrimaryKey( nIdRecord, getPlugin(  ) );
-
-            // Check permissions
-            if ( ( record == null ) || ( record.getDirectory(  ).getIdDirectory(  ) != nIdDirectory ) ||
-                    !RBACService.isAuthorized( Directory.RESOURCE_TYPE, strIdDirectory,
-                        DirectoryPDFProducerArchiveResourceIdService.PERMISSION_GENERATE_ZIP, getUser(  ) ) )
-            {
-                throw new AccessDeniedException(  );
-            }
-
             String strName = null;
 
             // Build file name
@@ -306,12 +289,11 @@ public class ZipBasketJspBean extends PluginAdminPageJspBean
             }
             else if ( DIRECTORY_ENTRY_FILE_NAME.equals( strTypeConfigFileName ) )
             {
-                Plugin pluginDirectory = PluginService.getPlugin( DirectoryPlugin.PLUGIN_NAME );
                 RecordFieldFilter filter = new RecordFieldFilter(  );
                 filter.setIdRecord( nIdRecord );
                 filter.setIdEntry( configProducer.getIdEntryFileName(  ) );
 
-                List<RecordField> listRecordField = RecordFieldHome.getRecordFieldList( filter, pluginDirectory );
+                List<RecordField> listRecordField = _manageZipBasketService.getRecordFields( filter );
 
                 for ( RecordField recordField : listRecordField )
                 {
@@ -358,8 +340,16 @@ public class ZipBasketJspBean extends PluginAdminPageJspBean
      */
     public String getConfirmRemoveZipBasket( HttpServletRequest request )
     {
-        String strIdZipBasket = request.getParameter( PARAMETER_ID_ZIPBASKET );
         String strIdDirectory = request.getParameter( PARAMETER_ID_DIRECTORY );
+
+        if ( !RBACService.isAuthorized( Directory.RESOURCE_TYPE, strIdDirectory,
+                    DirectoryPDFProducerArchiveResourceIdService.PERMISSION_DELETE_ZIP, getUser(  ) ) )
+        {
+            return AdminMessageService.getMessageUrl( request, Messages.USER_ACCESS_DENIED,
+                AdminMessage.TYPE_CONFIRMATION );
+        }
+
+        String strIdZipBasket = request.getParameter( PARAMETER_ID_ZIPBASKET );
         String strIdRecord = request.getParameter( PARAMETER_ID_DIRECTORY_RECORD );
 
         UrlItem url = new UrlItem( JSP_DO_REMOVE_ZIP_TO_BASKET );
@@ -378,8 +368,16 @@ public class ZipBasketJspBean extends PluginAdminPageJspBean
      */
     public String removeZipToBasket( HttpServletRequest request )
     {
-        String strIdZipBasket = request.getParameter( PARAMETER_ID_ZIPBASKET );
         String strIdDirectory = request.getParameter( PARAMETER_ID_DIRECTORY );
+
+        if ( !RBACService.isAuthorized( Directory.RESOURCE_TYPE, strIdDirectory,
+                    DirectoryPDFProducerArchiveResourceIdService.PERMISSION_DELETE_ZIP, getUser(  ) ) )
+        {
+            return AdminMessageService.getMessageUrl( request, Messages.USER_ACCESS_DENIED,
+                AdminMessage.TYPE_CONFIRMATION );
+        }
+
+        String strIdZipBasket = request.getParameter( PARAMETER_ID_ZIPBASKET );
         String strIdRecord = request.getParameter( PARAMETER_ID_DIRECTORY_RECORD );
 
         int nIdDirectory = DirectoryUtils.convertStringToInt( strIdDirectory );
@@ -418,6 +416,13 @@ public class ZipBasketJspBean extends PluginAdminPageJspBean
     {
         String strIdDirectory = request.getParameter( PARAMETER_ID_DIRECTORY );
 
+        if ( !RBACService.isAuthorized( Directory.RESOURCE_TYPE, strIdDirectory,
+                    DirectoryPDFProducerArchiveResourceIdService.PERMISSION_GENERATE_ZIP, getUser(  ) ) )
+        {
+            return AdminMessageService.getMessageUrl( request, Messages.USER_ACCESS_DENIED,
+                AdminMessage.TYPE_CONFIRMATION );
+        }
+
         UrlItem url = new UrlItem( JSP_DO_EXPORT_ALL_ZIP );
         url.addParameter( PARAMETER_ID_DIRECTORY, DirectoryUtils.convertStringToInt( strIdDirectory ) );
 
@@ -433,6 +438,14 @@ public class ZipBasketJspBean extends PluginAdminPageJspBean
     public String exportAllZipBasket( HttpServletRequest request )
     {
         String strIdDirectory = request.getParameter( PARAMETER_ID_DIRECTORY );
+
+        if ( !RBACService.isAuthorized( Directory.RESOURCE_TYPE, strIdDirectory,
+                    DirectoryPDFProducerArchiveResourceIdService.PERMISSION_GENERATE_ZIP, getUser(  ) ) )
+        {
+            return AdminMessageService.getMessageUrl( request, Messages.USER_ACCESS_DENIED,
+                AdminMessage.TYPE_CONFIRMATION );
+        }
+
         List<ZipBasket> listZipBasket = _manageZipBasketService.loadAllZipBasketByAdminUser( getPlugin(  ),
                 getUser(  ).getUserId(  ), DirectoryUtils.convertStringToInt( strIdDirectory ) );
 
@@ -454,14 +467,9 @@ public class ZipBasketJspBean extends PluginAdminPageJspBean
         boolean bAllExportAlreadyExists = _manageZipBasketService.existsZipBasket( nIdAdminUser, getPlugin(  ),
                 nIdDirectory, -1 );
 
-        if ( bCheckAllFileZipped && !bAllExportAlreadyExists )
+        if ( bCheckAllFileZipped && !bAllExportAlreadyExists && ( nIdDirectory != DirectoryUtils.CONSTANT_ID_NULL ) )
         {
-            Directory directory = new Directory(  );
-
-            if ( nIdDirectory != -1 )
-            {
-                directory = DirectoryHome.findByPrimaryKey( nIdDirectory, getPlugin(  ) );
-            }
+            Directory directory = _manageZipBasketService.getDirectory( nIdDirectory );
 
             String strName = StringUtil.replaceAccent( directory.getTitle(  ) ).replace( " ", "_" );
 
@@ -491,6 +499,13 @@ public class ZipBasketJspBean extends PluginAdminPageJspBean
     {
         String strIdDirectory = request.getParameter( PARAMETER_ID_DIRECTORY );
 
+        if ( !RBACService.isAuthorized( Directory.RESOURCE_TYPE, strIdDirectory,
+                    DirectoryPDFProducerArchiveResourceIdService.PERMISSION_GENERATE_ZIP, getUser(  ) ) )
+        {
+            return AdminMessageService.getMessageUrl( request, Messages.USER_ACCESS_DENIED,
+                AdminMessage.TYPE_CONFIRMATION );
+        }
+
         UrlItem url = new UrlItem( JSP_DO_REMOVE_ALL_ZIP );
         url.addParameter( PARAMETER_ID_DIRECTORY, DirectoryUtils.convertStringToInt( strIdDirectory ) );
 
@@ -506,6 +521,13 @@ public class ZipBasketJspBean extends PluginAdminPageJspBean
     public String removeAllZip( HttpServletRequest request )
     {
         String strIdDirectory = request.getParameter( PARAMETER_ID_DIRECTORY );
+
+        if ( !RBACService.isAuthorized( Directory.RESOURCE_TYPE, strIdDirectory,
+                    DirectoryPDFProducerArchiveResourceIdService.PERMISSION_DELETE_ZIP, getUser(  ) ) )
+        {
+            return AdminMessageService.getMessageUrl( request, Messages.USER_ACCESS_DENIED,
+                AdminMessage.TYPE_CONFIRMATION );
+        }
 
         int nIdDirectory = DirectoryUtils.convertStringToInt( strIdDirectory );
         int nIdAdminUser = getUser(  ).getUserId(  );

@@ -34,6 +34,8 @@
 package fr.paris.lutece.plugins.directory.modules.pdfproducerarchive.business.zipbasket;
 
 import fr.paris.lutece.portal.service.i18n.I18nService;
+import fr.paris.lutece.portal.service.i18n.Localizable;
+import fr.paris.lutece.portal.service.rbac.RBACAction;
 
 import java.util.Locale;
 
@@ -42,7 +44,7 @@ import java.util.Locale;
  * ZipBasketAction
  *
  */
-public class ZipBasketAction
+public class ZipBasketAction implements RBACAction, Localizable
 {
     // Variables declarations
     private String _strUrl;

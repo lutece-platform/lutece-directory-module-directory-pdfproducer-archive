@@ -65,10 +65,12 @@
 					<input type="hidden" value="${idDirectory}" name="id_directory" />
 					<input class="button" type="submit" value="#i18n{module.directory.pdfproducerarchive.manage_directory.basket.manage.zip.all.export}" name="export_search_result" />			
 				</form>
-				<form action="jsp/admin/plugins/directory/modules/pdfproducer/archive/basket/ConfirmRemoveAllZip.jsp" method="post">
-					<input type="hidden" value="${idDirectory}" name="id_directory" />
-					<input class="button" type="submit" value="#i18n{module.directory.pdfproducerarchive.manage_directory.basket.manage.zip.all.remove}" name="remove_all_zip" />
-				</form>
+				<#if permission_delete_zip>
+					<form action="jsp/admin/plugins/directory/modules/pdfproducer/archive/basket/ConfirmRemoveAllZip.jsp" method="post">
+						<input type="hidden" value="${idDirectory}" name="id_directory" />
+						<input class="button" type="submit" value="#i18n{module.directory.pdfproducerarchive.manage_directory.basket.manage.zip.all.remove}" name="remove_all_zip" />
+					</form>
+				</#if>
 				<table name="results_list" id="results_list">
 					<tr>
 						<th>
@@ -104,7 +106,7 @@
 									<td>
 										<#if zip.listZipBasketAction?has_content>
 											<#list zip.listZipBasketAction as action>
-												<#if action.permission != 'VISUALISATION_ZIP' || zip.idRecord != -1 >
+												<#if action.permission != 'VISUALISATION_RECORD' || zip.idRecord != -1 >
 													<#if action.permission == 'DOWNLOAD_ZIP' && zip.zipUrl?exists>										
 														<a href="${zip.zipUrl}">
 													<#else>
@@ -124,10 +126,12 @@
 					<input type="hidden" value="${idDirectory}" name="id_directory" />
 					<input class="button" type="submit" value="#i18n{module.directory.pdfproducerarchive.manage_directory.basket.manage.zip.all.export}" name="export_search_result" />			
 				</form>
-				<form action="jsp/admin/plugins/directory/modules/pdfproducer/archive/basket/ConfirmRemoveAllZip.jsp" method="post">
-					<input type="hidden" value="${idDirectory}" name="id_directory" />
-					<input class="button" type="submit" value="#i18n{module.directory.pdfproducerarchive.manage_directory.basket.manage.zip.all.remove}" name="remove_all_zip" />
-				</form>
+				<#if permission_delete_zip>
+					<form action="jsp/admin/plugins/directory/modules/pdfproducer/archive/basket/ConfirmRemoveAllZip.jsp" method="post">
+						<input type="hidden" value="${idDirectory}" name="id_directory" />
+						<input class="button" type="submit" value="#i18n{module.directory.pdfproducerarchive.manage_directory.basket.manage.zip.all.remove}" name="remove_all_zip" />
+					</form>
+				</#if>
 			<#else>
 				#i18n{module.directory.pdfproducerarchive.manage_directory.basket.manage.zip.empty}
 			</#if>
