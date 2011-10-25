@@ -84,8 +84,10 @@ public class MassExportZipAction extends AbstractPluginAction<DirectoryAdminSear
      */
     public void fillModel( HttpServletRequest request, AdminUser adminUser, Map<String, Object> model )
     {
+        String strIdDirectory = request.getParameter( DirectoryUtils.PARAMETER_ID_DIRECTORY );
+        String strIdResource = StringUtils.isNotBlank( strIdDirectory ) ? strIdDirectory : RBAC.WILDCARD_RESOURCES_ID;
         model.put( MARK_PERMISSION_GENERATE_ZIP,
-            RBACService.isAuthorized( Directory.RESOURCE_TYPE, RBAC.WILDCARD_RESOURCES_ID,
+            RBACService.isAuthorized( Directory.RESOURCE_TYPE, strIdResource,
                 DirectoryPDFProducerArchiveResourceIdService.PERMISSION_GENERATE_ZIP, adminUser ) );
     }
 
