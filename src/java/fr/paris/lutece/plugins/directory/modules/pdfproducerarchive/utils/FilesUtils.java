@@ -74,7 +74,6 @@ import javax.servlet.http.HttpServletRequest;
  */
 public final class FilesUtils
 {
-    private static final String PARAMETER_ID_DIRECTORY_RECORD = "id_directory_record";
     private static final String PROPERTY_PATH_FILES_GENERATED = "directory.zipbasket.root.path.repository.filesgenerated";
     private static final String MESSAGE_DELETE_ERROR = "Error deleting file or directory";
     private static final String MESSAGE_CREATE_ERROR = "Error creating directory";
@@ -143,14 +142,13 @@ public final class FilesUtils
      * @param request request
      * @param strTempDirectoryExtract the temporary directory for extraction
      * @param listIdEntryConfig config list of id entry
+     * @param nIdRecord the id record
      */
     public static void getAllFilesRecorded( HttpServletRequest request, String strTempDirectoryExtract,
-        List<Integer> listIdEntryConfig )
+        List<Integer> listIdEntryConfig, int nIdRecord )
     {
         Plugin plugin = PluginService.getPlugin( DirectoryPlugin.PLUGIN_NAME );
         AdminUser adminUser = AdminUserService.getAdminUser( request );
-        String strIdRecord = request.getParameter( PARAMETER_ID_DIRECTORY_RECORD );
-        int nIdRecord = DirectoryUtils.convertStringToInt( strIdRecord );
         EntryFilter filter;
 
         Record record = RecordHome.findByPrimaryKey( nIdRecord, plugin );

@@ -82,10 +82,11 @@ public final class ZipService
      * @param nIdKeyUser id key user
      * @param nIdDirectory id directory
      * @param listIdEntryConfig config to build pdf
+     * @param nIdRecord the id record
      * @return the archive id
      */
     public int doGeneratePDFAndZip( HttpServletRequest request, String strName, int nIdKeyUser, int nIdDirectory,
-        List<Integer> listIdEntryConfig )
+        List<Integer> listIdEntryConfig, int nIdRecord )
     {
         String strDirectoryName = strName;
 
@@ -107,7 +108,7 @@ public final class ZipService
         try
         {
             os = new FileOutputStream( new File( strPathFilesGenerate + "/" + strDirectoryName + EXTENSION_FILE_PDF ) );
-            PDFUtils.doCreateDocumentPDF( request, strDirectoryName, os, listIdEntryConfig );
+            PDFUtils.doCreateDocumentPDF( request, strDirectoryName, os, nIdRecord, listIdEntryConfig );
         }
         catch ( FileNotFoundException e )
         {
@@ -118,7 +119,7 @@ public final class ZipService
             IOUtils.closeQuietly( os );
         }
 
-        FilesUtils.getAllFilesRecorded( request, strPathFilesGenerate, listIdEntryConfig );
+        FilesUtils.getAllFilesRecorded( request, strPathFilesGenerate, listIdEntryConfig, nIdRecord );
 
         int nArchiveItemKey;
 

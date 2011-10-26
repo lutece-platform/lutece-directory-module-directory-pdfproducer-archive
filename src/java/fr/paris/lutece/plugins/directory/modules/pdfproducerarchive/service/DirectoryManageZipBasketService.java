@@ -97,7 +97,8 @@ public class DirectoryManageZipBasketService
         if ( !ZipBasketHome.existsZipBasket( nIdAdminUser, plugin, nIdDirectory, nIdRecord ) )
         {
             int nARchiveItemKey = getZipService(  )
-                                      .doGeneratePDFAndZip( request, strName, nIdAdminUser, nIdDirectory, listIdConfig );
+                                      .doGeneratePDFAndZip( request, strName, nIdAdminUser, nIdDirectory, listIdConfig,
+                    nIdRecord );
 
             if ( nARchiveItemKey == -1 )
             {
