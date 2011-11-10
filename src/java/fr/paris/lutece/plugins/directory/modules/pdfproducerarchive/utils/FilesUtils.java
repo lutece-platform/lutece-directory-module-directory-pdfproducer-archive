@@ -52,8 +52,6 @@ import fr.paris.lutece.portal.service.plugin.PluginService;
 import fr.paris.lutece.portal.service.rbac.RBACService;
 import fr.paris.lutece.portal.service.util.AppLogService;
 import fr.paris.lutece.portal.service.util.AppPropertiesService;
-import fr.paris.lutece.util.httpaccess.HttpAccess;
-import fr.paris.lutece.util.httpaccess.HttpAccessException;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
@@ -279,19 +277,8 @@ public final class FilesUtils
      */
     private static void doDownloadUrl( String strUrl, String strTempDirectoryExtract )
     {
-        HttpAccess httpAccess = new HttpAccess(  );
-
-        try
-        {
-            //String[] tab = strUrl.split("/");
-            //String strFileName = tab[tab.length-1];
-            String strFileName = httpAccess.getFileName( strUrl );
-            httpAccess.downloadFile( strUrl, strTempDirectoryExtract + File.separator + strFileName );
-        }
-        catch ( HttpAccessException e )
-        {
-            AppLogService.error( e );
-        }
+        String strFilePath = strTempDirectoryExtract + File.separator + DirectoryUtils.getFileName( strUrl );
+        DirectoryUtils.doDownloadFile( strUrl, strFilePath );
     }
 
     /**
