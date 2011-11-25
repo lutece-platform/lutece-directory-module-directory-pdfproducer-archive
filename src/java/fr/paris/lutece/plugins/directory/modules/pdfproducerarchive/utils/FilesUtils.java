@@ -51,6 +51,7 @@ import fr.paris.lutece.portal.service.plugin.Plugin;
 import fr.paris.lutece.portal.service.plugin.PluginService;
 import fr.paris.lutece.portal.service.rbac.RBACService;
 import fr.paris.lutece.portal.service.util.AppLogService;
+import fr.paris.lutece.portal.service.util.AppPathService;
 import fr.paris.lutece.portal.service.util.AppPropertiesService;
 
 import org.apache.commons.io.IOUtils;
@@ -289,9 +290,10 @@ public final class FilesUtils
      */
     public static String builNamePathBasket( int nIdAdminUser, int nIdDirectory )
     {
-        String strRootPathFilesGenerate = AppPropertiesService.getProperty( PROPERTY_PATH_FILES_GENERATED );
-        String strPathBasket = strRootPathFilesGenerate + "_" + String.valueOf( nIdAdminUser ) + "_" +
-            String.valueOf( nIdDirectory );
+        String strRootPathFilesGenerate = AppPathService.getAbsolutePathFromRelativePath( AppPropertiesService.getProperty( 
+                    PROPERTY_PATH_FILES_GENERATED ) );
+        String strPathBasket = strRootPathFilesGenerate + Integer.toString( nIdAdminUser ) + "_" +
+            Integer.toString( nIdDirectory );
 
         return strPathBasket;
     }
