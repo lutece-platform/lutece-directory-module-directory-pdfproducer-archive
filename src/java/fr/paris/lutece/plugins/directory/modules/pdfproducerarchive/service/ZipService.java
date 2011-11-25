@@ -35,6 +35,7 @@ package fr.paris.lutece.plugins.directory.modules.pdfproducerarchive.service;
 
 import fr.paris.lutece.plugins.archiveclient.service.archive.IArchiveClientService;
 import fr.paris.lutece.plugins.archiveclient.service.util.ArchiveClientConstants;
+import fr.paris.lutece.plugins.archiveclient.service.util.ArchiveClientException;
 import fr.paris.lutece.plugins.directory.modules.pdfproducer.utils.PDFUtils;
 import fr.paris.lutece.plugins.directory.modules.pdfproducerarchive.utils.FilesUtils;
 import fr.paris.lutece.plugins.directory.utils.DirectoryUtils;
@@ -156,22 +157,24 @@ public final class ZipService
         {
             String strPathFilesGenerate = FilesUtils.builNamePathBasket( nIdKeyUser, nIdDirectory ) + File.separator +
                 zipName;
-            String strPathZipGenerate = FilesUtils.builNamePathBasket( nIdKeyUser, nIdDirectory ) + File.separator +
-                AppPropertiesService.getProperty( PROPERTY_ZIP_NAME_REPOSITORY );
 
             if ( DirectoryUtils.convertStringToInt( strIdRecord ) != DirectoryUtils.CONSTANT_ID_NULL )
             {
+                // Delete the temp folder in case it still exists
                 FilesUtils.cleanTemporyZipDirectory( strPathFilesGenerate );
-                FilesUtils.cleanTemporyZipDirectory( strPathZipGenerate + File.separator + zipName +
-                    EXTENSION_FILE_ZIP );
-            }
-            else
-            {
-                FilesUtils.cleanTemporyZipDirectory( strPathFilesGenerate + File.separator + zipName +
-                    EXTENSION_FILE_ZIP );
             }
 
-            _archiveClientService.removeArchive( nArchiveItemKey );
+            try
+            {
+                // Archive client must handle the deletion of the files, not directory-pdfproducer-archive
+                _archiveClientService.removeArchive( nArchiveItemKey );
+            }
+            catch ( ArchiveClientException e )
+            {
+                AppLogService.error( e.getMessage(  ), e );
+
+                return false;
+            }
 
             return true;
         }

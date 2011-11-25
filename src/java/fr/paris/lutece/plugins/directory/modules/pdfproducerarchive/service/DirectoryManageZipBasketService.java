@@ -96,16 +96,16 @@ public class DirectoryManageZipBasketService
     {
         if ( !ZipBasketHome.existsZipBasket( nIdAdminUser, plugin, nIdDirectory, nIdRecord ) )
         {
-            int nARchiveItemKey = getZipService(  )
+            int nArchiveItemKey = getZipService(  )
                                       .doGeneratePDFAndZip( request, strName, nIdAdminUser, nIdDirectory, listIdConfig,
                     nIdRecord );
 
-            if ( nARchiveItemKey == -1 )
+            if ( nArchiveItemKey == -1 )
             {
                 return false;
             }
 
-            ZipBasketHome.addZipBasket( strName, nIdAdminUser, plugin, nIdDirectory, nIdRecord, nARchiveItemKey );
+            ZipBasketHome.addZipBasket( strName, nIdAdminUser, plugin, nIdDirectory, nIdRecord, nArchiveItemKey );
 
             return true;
         }
