@@ -18,7 +18,11 @@
 						<#if zip.idRecord == -1>
 							<tr>
 								<td>
-									${zip.zipName}
+									<#if zip.zipName?length &gt; 30>
+										${zip.zipName?substring(0, 30)}...
+									<#else>
+										${zip.zipName}
+									</#if>
 								</td>
 								<td>
 									<#if zip.zipStatus == '0'>
@@ -93,7 +97,11 @@
 							<#if zip.idRecord != -1>
 								<tr>
 									<td>
-										${zip.zipName}
+										<#if zip.zipName?length &gt; 30>
+											${zip.zipName?substring(0, 30)}...
+										<#else>
+											${zip.zipName}
+										</#if>
 									</td>
 									<td>
 										<#if zip.zipStatus == '0'>
