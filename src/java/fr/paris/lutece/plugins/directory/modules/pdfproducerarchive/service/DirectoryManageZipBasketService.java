@@ -46,8 +46,8 @@ import fr.paris.lutece.plugins.directory.modules.pdfproducerarchive.business.zip
 import fr.paris.lutece.plugins.directory.modules.pdfproducerarchive.business.zipbasket.ZipBasketAction;
 import fr.paris.lutece.plugins.directory.modules.pdfproducerarchive.business.zipbasket.ZipBasketActionHome;
 import fr.paris.lutece.plugins.directory.modules.pdfproducerarchive.business.zipbasket.ZipBasketHome;
-import fr.paris.lutece.plugins.directory.modules.pdfproducerarchive.utils.ConstantsStatusZip;
 import fr.paris.lutece.plugins.directory.modules.pdfproducerarchive.utils.FilesUtils;
+import fr.paris.lutece.plugins.directory.modules.pdfproducerarchive.utils.StatusZipEnum;
 import fr.paris.lutece.plugins.directory.service.DirectoryPlugin;
 import fr.paris.lutece.portal.business.user.AdminUser;
 import fr.paris.lutece.portal.service.plugin.Plugin;
@@ -147,7 +147,20 @@ public class DirectoryManageZipBasketService
      */
     public boolean deleteZipBasket( Plugin plugin, int nIdZipBasket, String strIdRecord )
     {
-        updateZipBasketStatus(  );
+        return deleteZipBasket( plugin, nIdZipBasket, strIdRecord, null );
+    }
+
+    /**
+     * This method delete a ZipBasket, its PDF and attachments after update status
+     * @param plugin plugin
+     * @param nIdZipBasket id of the zipbasket
+     * @param strIdRecord id of record
+     * @param sbLog the log
+     * @return true if the zipbasket can be deleted otherwise false
+     */
+    public boolean deleteZipBasket( Plugin plugin, int nIdZipBasket, String strIdRecord, StringBuilder sbLog )
+    {
+        updateZipBasketStatus( sbLog );
 
         ZipBasket zipbasket = ZipBasketHome.loadZipBasket( plugin, nIdZipBasket );
         int nArchiveItemKey = zipbasket.getArchiveItemKey(  );
@@ -158,11 +171,14 @@ public class DirectoryManageZipBasketService
         if ( getZipService(  ).doDeleteZip( strIdRecord, nArchiveItemKey, nIdAdminUser, nIdDirectory, zipName ) )
         {
             ZipBasketHome.deleteZipBasket( plugin, nIdZipBasket );
+            log( sbLog, "\n\tDeleting : SUCCESS " );
 
             return true;
         }
         else
         {
+            log( sbLog, "\n\tDeleting : FAILED " );
+
             return false;
         }
     }
@@ -248,7 +264,7 @@ public class DirectoryManageZipBasketService
      */
     private static void changeZipBasketStatusToInProgress( Plugin plugin, int nIdZipBasket )
     {
-        ZipBasketHome.changeZipBasketStatus( plugin, nIdZipBasket, ConstantsStatusZip.PARAMATER_STATUS_IN_PROGRESS );
+        ZipBasketHome.changeZipBasketStatus( plugin, nIdZipBasket, StatusZipEnum.IN_PROGRESS.getId(  ) );
     }
 
     /**
@@ -259,7 +275,7 @@ public class DirectoryManageZipBasketService
      */
     private static void changeZipBasketStatusToFinished( Plugin plugin, int nIdZipBasket, String strUrl )
     {
-        ZipBasketHome.changeZipBasketStatus( plugin, nIdZipBasket, ConstantsStatusZip.PARAMATER_STATUS_FINISHED );
+        ZipBasketHome.changeZipBasketStatus( plugin, nIdZipBasket, StatusZipEnum.FINISHED.getId(  ) );
         ZipBasketHome.changeZipBasketUrl( plugin, nIdZipBasket, strUrl );
     }
 
@@ -270,7 +286,7 @@ public class DirectoryManageZipBasketService
      */
     private static void changeZipBasketStatusToFailed( Plugin plugin, int nIdZipBasket )
     {
-        ZipBasketHome.changeZipBasketStatus( plugin, nIdZipBasket, ConstantsStatusZip.PARAMATER_STATUS_FAILED );
+        ZipBasketHome.changeZipBasketStatus( plugin, nIdZipBasket, StatusZipEnum.FAILED.getId(  ) );
     }
 
     /**
@@ -278,23 +294,40 @@ public class DirectoryManageZipBasketService
      */
     public void updateZipBasketStatus(  )
     {
+        updateZipBasketStatus( null );
+    }
+
+    /**
+     * modify the status of zipbasket according the information given by archiveClientService
+     * @param sbLog the log
+     */
+    public void updateZipBasketStatus( StringBuilder sbLog )
+    {
         Plugin plugin = PluginService.getPlugin( DirectoryPlugin.PLUGIN_NAME );
         List<ZipBasket> listZipBasket = ZipBasketHome.loadAllZipBasket( plugin );
 
         for ( ZipBasket zipBasket : listZipBasket )
         {
-            if ( ConstantsStatusZip.PARAMATER_STATUS_IN_PROGRESS.equals( zipBasket.getZipStatus(  ) ) ||
-                    ConstantsStatusZip.PARAMATER_STATUS_PENDING.equals( zipBasket.getZipStatus(  ) ) )
+            if ( StatusZipEnum.IN_PROGRESS.getId(  ).equals( zipBasket.getZipStatus(  ) ) ||
+                    StatusZipEnum.PENDING.getId(  ).equals( zipBasket.getZipStatus(  ) ) )
             {
+                log( sbLog,
+                    "\n- Updating zip status '" + zipBasket.getZipName(  ) + " (ID : " + zipBasket.getIdZip(  ) +
+                    ")' " );
+
                 String strArchiveStatus = getZipService(  ).getStatutZip( zipBasket.getArchiveItemKey(  ) );
+
+                log( sbLog, "\n\tArchive Status : '" + strArchiveStatus + "'" );
 
                 if ( ARCHIVE_STATE_USED.equals( strArchiveStatus ) )
                 {
+                    log( sbLog, "\n\tChanging zip status to '" + StatusZipEnum.IN_PROGRESS + "'" );
                     changeZipBasketStatusToInProgress( plugin, zipBasket.getIdZip(  ) );
                 }
 
                 if ( ARCHIVE_STATE_ERROR.equals( strArchiveStatus ) )
                 {
+                    log( sbLog, "\n\tChanging zip status to '" + StatusZipEnum.FAILED + "'" );
                     changeZipBasketStatusToFailed( plugin, zipBasket.getIdZip(  ) );
 
                     String strPathFilesGenerate = FilesUtils.builNamePathBasket( zipBasket.getIdAdminUser(  ),
@@ -308,6 +341,7 @@ public class DirectoryManageZipBasketService
 
                     if ( StringUtils.isNotBlank( strUrl ) )
                     {
+                        log( sbLog, "\n\tChanging zip status to '" + StatusZipEnum.FINISHED + "'" );
                         changeZipBasketStatusToFinished( plugin, zipBasket.getIdZip(  ), strUrl );
 
                         String strPathFilesGenerate = FilesUtils.builNamePathBasket( zipBasket.getIdAdminUser(  ),
@@ -316,6 +350,7 @@ public class DirectoryManageZipBasketService
                     }
                     else
                     {
+                        log( sbLog, "\n\tChanging zip status to '" + StatusZipEnum.FAILED + "'" );
                         changeZipBasketStatusToFailed( plugin, zipBasket.getIdZip(  ) );
                     }
                 }
@@ -379,5 +414,18 @@ public class DirectoryManageZipBasketService
     {
         return (ZipService) SpringContextService.getPluginBean( DirectoryPDFProducerPlugin.PLUGIN_NAME,
             "directory-pdfproducer-archive.zipUtils" );
+    }
+
+    /**
+     * Log the message
+     * @param sbLog the log
+     * @param strMessage the message to log
+     */
+    private void log( StringBuilder sbLog, String strMessage )
+    {
+        if ( sbLog != null )
+        {
+            sbLog.append( strMessage );
+        }
     }
 }

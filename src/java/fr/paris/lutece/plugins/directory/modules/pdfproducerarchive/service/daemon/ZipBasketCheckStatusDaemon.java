@@ -38,6 +38,8 @@ import fr.paris.lutece.plugins.directory.modules.pdfproducerarchive.service.Dire
 import fr.paris.lutece.portal.service.daemon.Daemon;
 import fr.paris.lutece.portal.service.spring.SpringContextService;
 
+import org.apache.commons.lang.StringUtils;
+
 
 /**
  * ZipBasketCheckStatus
@@ -50,8 +52,16 @@ public class ZipBasketCheckStatusDaemon extends Daemon
     */
     public void run(  )
     {
+        StringBuilder sbLog = new StringBuilder(  );
         DirectoryManageZipBasketService manageZipBasketService = (DirectoryManageZipBasketService) SpringContextService.getPluginBean( DirectoryPDFProducerArchivePlugin.PLUGIN_NAME,
                 "directory-pdfproducer-archive.directoryManageZipBasketService" );
-        manageZipBasketService.updateZipBasketStatus(  );
+        manageZipBasketService.updateZipBasketStatus( sbLog );
+
+        if ( StringUtils.isBlank( sbLog.toString(  ) ) )
+        {
+            sbLog.append( "\nNo updates" );
+        }
+
+        setLastRunLogs( sbLog.toString(  ) );
     }
 }

@@ -35,21 +35,45 @@ package fr.paris.lutece.plugins.directory.modules.pdfproducerarchive.utils;
 
 
 /**
- * ConstantsStatusZip
+ *
+ * StatusZipEnum
  *
  */
-public final class ConstantsStatusZip
-{
-    // constants for zipbasket
-    public static final String PARAMATER_STATUS_PENDING = "0";
-    public static final String PARAMATER_STATUS_IN_PROGRESS = "1";
-    public static final String PARAMATER_STATUS_FINISHED = "2";
-    public static final String PARAMATER_STATUS_FAILED = "3";
+public enum StatusZipEnum
+{PENDING( "0", "Pending" ),
+    IN_PROGRESS( "1", "In progress" ),
+    FINISHED( "2", "Finished" ),
+    FAILED( "3", "Failed" );
+
+    private String _strId;
+    private String _strStatus;
 
     /**
-     * Constructor
+     * Private constructor
+     * @param strId the id
+     * @param strStatus the status
      */
-    private ConstantsStatusZip(  )
+    private StatusZipEnum( String strId, String strStatus )
     {
+        _strId = strId;
+        _strStatus = strStatus;
+    }
+
+    /**
+     * Get the id
+     * @return the id
+     */
+    public String getId(  )
+    {
+        return _strId;
+    }
+
+    /**
+     * To String
+     * @return the status
+     */
+    public String toString(  )
+    {
+        return _strStatus;
     }
 }

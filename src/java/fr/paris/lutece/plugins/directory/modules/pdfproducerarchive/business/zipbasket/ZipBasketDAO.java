@@ -33,7 +33,7 @@
  */
 package fr.paris.lutece.plugins.directory.modules.pdfproducerarchive.business.zipbasket;
 
-import fr.paris.lutece.plugins.directory.modules.pdfproducerarchive.utils.ConstantsStatusZip;
+import fr.paris.lutece.plugins.directory.modules.pdfproducerarchive.utils.StatusZipEnum;
 import fr.paris.lutece.portal.service.plugin.Plugin;
 import fr.paris.lutece.util.sql.DAOUtil;
 
@@ -95,7 +95,7 @@ public class ZipBasketDAO implements IZipBasketDAO
         DAOUtil daoUtil = new DAOUtil( SQL_QUERY_INSERT, plugin );
         daoUtil.setInt( 1, nIdZipBasket );
         daoUtil.setString( 2, strName );
-        daoUtil.setString( 3, ConstantsStatusZip.PARAMATER_STATUS_PENDING );
+        daoUtil.setString( 3, StatusZipEnum.PENDING.getId(  ) );
         daoUtil.setInt( 4, nIdAdminUser );
         daoUtil.setInt( 5, nIdDirectory );
         daoUtil.setInt( 6, nIdRecord );

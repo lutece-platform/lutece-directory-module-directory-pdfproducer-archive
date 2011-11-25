@@ -45,7 +45,7 @@ import fr.paris.lutece.plugins.directory.modules.pdfproducer.utils.PDFUtils;
 import fr.paris.lutece.plugins.directory.modules.pdfproducerarchive.business.zipbasket.ZipBasket;
 import fr.paris.lutece.plugins.directory.modules.pdfproducerarchive.service.DirectoryManageZipBasketService;
 import fr.paris.lutece.plugins.directory.modules.pdfproducerarchive.service.DirectoryPDFProducerArchiveResourceIdService;
-import fr.paris.lutece.plugins.directory.modules.pdfproducerarchive.utils.ConstantsStatusZip;
+import fr.paris.lutece.plugins.directory.modules.pdfproducerarchive.utils.StatusZipEnum;
 import fr.paris.lutece.plugins.directory.utils.DirectoryUtils;
 import fr.paris.lutece.portal.service.admin.AccessDeniedException;
 import fr.paris.lutece.portal.service.message.AdminMessage;
@@ -453,7 +453,7 @@ public class ZipBasketJspBean extends PluginAdminPageJspBean
 
         for ( ZipBasket zipBasket : listZipBasket )
         {
-            if ( !zipBasket.getZipStatus(  ).equals( ConstantsStatusZip.PARAMATER_STATUS_FINISHED ) )
+            if ( !StatusZipEnum.FINISHED.getId(  ).equals( zipBasket.getZipStatus(  ) ) )
             {
                 bCheckAllFileZipped = false;
             }

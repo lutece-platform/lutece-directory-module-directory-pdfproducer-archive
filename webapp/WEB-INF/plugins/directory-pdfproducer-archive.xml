@@ -24,10 +24,10 @@
     	<daemon>
 			<daemon-id>zipBasketCheckStatus</daemon-id>
 			<daemon-name>
-				directory.daemon.zipBasketCheckStatus.name
+				module.directory.pdfproducerarchive.daemon.zipBasketCheckStatus.name
 			</daemon-name>
 			<daemon-description>
-				directory.daemon.zipBasketCheckStatus.description
+				module.directory.pdfproducerarchive.daemon.zipBasketCheckStatus.description
 			</daemon-description>
 			<daemon-class>
 				fr.paris.lutece.plugins.directory.modules.pdfproducerarchive.service.daemon.ZipBasketCheckStatusDaemon
@@ -36,10 +36,10 @@
 		<daemon>
 			<daemon-id>zipCleaner</daemon-id>
 			<daemon-name>
-				directory.daemon.zipCleaner.name
+				module.directory.pdfproducerarchive.daemon.zipCleaner.name
 			</daemon-name>
 			<daemon-description>
-				directory.daemon.zipCleaner.description
+				module.directory.pdfproducerarchive.daemon.zipCleaner.description
 			</daemon-description>
 			<daemon-class>
 				fr.paris.lutece.plugins.directory.modules.pdfproducerarchive.service.daemon.ZipCleanerDaemon

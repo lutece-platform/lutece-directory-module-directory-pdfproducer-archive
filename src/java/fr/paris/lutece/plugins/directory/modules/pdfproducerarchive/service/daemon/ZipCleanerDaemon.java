@@ -42,6 +42,8 @@ import fr.paris.lutece.portal.service.plugin.PluginService;
 import fr.paris.lutece.portal.service.spring.SpringContextService;
 import fr.paris.lutece.portal.service.util.AppPropertiesService;
 
+import org.apache.commons.lang.StringUtils;
+
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 
@@ -68,6 +70,7 @@ public class ZipCleanerDaemon extends Daemon
      */
     public void run(  )
     {
+        StringBuilder sbLog = new StringBuilder(  );
         Plugin plugin = PluginService.getPlugin( DirectoryPDFProducerPlugin.PLUGIN_NAME );
         int nExpirationDays = AppPropertiesService.getPropertyInt( PROPERTY_DAEMON_NB_EXPIRATION_DAYS, 7 );
         Calendar calendar = new GregorianCalendar(  );
@@ -77,9 +80,18 @@ public class ZipCleanerDaemon extends Daemon
         {
             if ( zipBasket != null )
             {
+                sbLog.append( "\n- Cleaning archive '" + zipBasket.getZipName(  ) + " (ID : " + zipBasket.getIdZip(  ) +
+                    ")'" );
                 _manageZipBasketService.deleteZipBasket( plugin, zipBasket.getIdZip(  ),
-                    Integer.toString( zipBasket.getIdRecord(  ) ) );
+                    Integer.toString( zipBasket.getIdRecord(  ) ), sbLog );
             }
         }
+
+        if ( StringUtils.isBlank( sbLog.toString(  ) ) )
+        {
+            sbLog.append( "\nNo archive to clean" );
+        }
+
+        setLastRunLogs( sbLog.toString(  ) );
     }
 }
