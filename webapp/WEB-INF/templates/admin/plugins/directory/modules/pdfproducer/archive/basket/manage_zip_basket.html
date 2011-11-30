@@ -58,12 +58,12 @@
 					</#list>
 			</table>		
 		</#if>
-		<p>
-			<a href="jsp/admin/plugins/directory/ManageDirectoryRecord.jsp?id_directory=${idDirectory}">
-				<input type="button" class="button" value="#i18n{module.directory.pdfproducerarchive.manage_directory.basket.manage.label_back}" />
-			</a>
-		</p>
 		<br />
+		<form action="jsp/admin/plugins/directory/ManageDirectoryRecord.jsp" method="get">
+	  		<input type="hidden" name="id_directory" value="${idDirectory}" />
+	  		<input type="hidden" name="session" value="session" />
+			<input class="button" type="submit" value="#i18n{module.directory.pdfproducerarchive.manage_directory.basket.manage.label_back}" />
+	  	</form>
 	</div></div>
 </div>
 <div id="right">
