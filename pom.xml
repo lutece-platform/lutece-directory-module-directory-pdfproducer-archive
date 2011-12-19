@@ -10,7 +10,7 @@
     <groupId>fr.paris.lutece.plugins</groupId>
     <artifactId>module-directory-pdfproducer-archive</artifactId>
     <packaging>lutece-plugin</packaging>
-    <version>1.0.4</version>
+    <version>1.0.5-SNAPSHOT</version>
     <name>Lutece directory pdfproducer archive module</name>
 	
     <repositories>
@@ -68,9 +68,9 @@
         <jiraComponentId>10587</jiraComponentId>
     </properties>
     <scm>
-        <connection>scm:svn:http://dev.lutece.paris.fr/svn/lutece/portal/tags/module-directory-pdfproducer-archive-1.0.4</connection>
-        <developerConnection>scm:svn:https://dev.lutece.paris.fr/svn/lutece/portal/tags/module-directory-pdfproducer-archive-1.0.4</developerConnection>
-        <url>http://dev.lutece.paris.fr/viewvc/lutece/portal/tags/module-directory-pdfproducer-archive-1.0.4</url>
+        <connection>scm:svn:http://dev.lutece.paris.fr/svn/lutece/portal/trunk/plugins/directory-form-workflow/module-directory-pdfproducer-archive</connection>
+        <developerConnection>scm:svn:https://dev.lutece.paris.fr/svn/lutece/portal/trunk/plugins/directory-form-workflow/module-directory-pdfproducer-archive</developerConnection>
+        <url>http://dev.lutece.paris.fr/viewvc/lutece/portal/trunk/plugins/directory-form-workflow/module-directory-pdfproducer-archive</url>
     </scm>
 	
 </project>
