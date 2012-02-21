@@ -41,6 +41,7 @@ import fr.paris.lutece.plugins.directory.business.PhysicalFileHome;
 import fr.paris.lutece.plugins.directory.business.Record;
 import fr.paris.lutece.plugins.directory.business.RecordField;
 import fr.paris.lutece.plugins.directory.business.RecordHome;
+import fr.paris.lutece.plugins.directory.modules.pdfproducer.utils.PDFUtils;
 import fr.paris.lutece.plugins.directory.service.DirectoryPlugin;
 import fr.paris.lutece.plugins.directory.service.DirectoryResourceIdService;
 import fr.paris.lutece.plugins.directory.utils.DirectoryUtils;
@@ -76,6 +77,7 @@ public final class FilesUtils
     private static final String PROPERTY_PATH_FILES_GENERATED = "directory.zipbasket.root.path.repository.filesgenerated";
     private static final String MESSAGE_DELETE_ERROR = "Error deleting file or directory";
     private static final String MESSAGE_CREATE_ERROR = "Error creating directory";
+    private static final int MAX_LIMIT_NAME_DIRECTORY = 50;
 
     /**
      * Constructor
@@ -212,7 +214,11 @@ public final class FilesUtils
         for ( RecordField recordField : DirectoryUtils.getMapIdEntryListRecordField( listEntry, nIdRecord, plugin )
                                                       .get( String.valueOf( entry.getIdEntry(  ) ) ) )
         {
-            String strTempPathExtract = strTempDirectoryExtract.concat( File.separator + entry.getTitle(  ) );
+            String strTempPathExtract = strTempDirectoryExtract.concat( File.separator );
+            if ( StringUtils.isNotBlank( entry.getTitle(  ) ) )
+            {
+            	strTempPathExtract = strTempPathExtract.concat( limitLengthName( PDFUtils.doPurgeNameFile( entry.getTitle(  ) ) ) );
+            }
 
             if ( recordField.getFile(  ) != null )
             {
@@ -296,5 +302,15 @@ public final class FilesUtils
             Integer.toString( nIdDirectory );
 
         return strPathBasket;
+    }
+    
+    /**
+     * Method to limit the name length by 50 caracters
+     * @param strPathName name of directory
+     * @return the new limited name
+     */
+    private static String limitLengthName( String strPathName )
+    {
+    	return StringUtils.substring( strPathName, 0, MAX_LIMIT_NAME_DIRECTORY );
     }
 }
