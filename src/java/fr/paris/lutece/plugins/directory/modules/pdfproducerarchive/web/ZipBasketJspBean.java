@@ -60,13 +60,13 @@ import fr.paris.lutece.util.html.HtmlTemplate;
 import fr.paris.lutece.util.string.StringUtil;
 import fr.paris.lutece.util.url.UrlItem;
 
-import org.apache.commons.lang.StringUtils;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
+
+import org.apache.commons.lang.StringUtils;
 
 
 /**
@@ -143,7 +143,7 @@ public class ZipBasketJspBean extends PluginAdminPageJspBean
         }
 
         Map<String, Object> model = new HashMap<String, Object>(  );
-        List<ZipBasket> listZipBasket = _manageZipBasketService.loadAllZipBasketByAdminUser( getPlugin(  ),
+        List<ZipBasket> listZipBasket = _manageZipBasketService.loadAllZipBasketByAdminUserOrder( getPlugin( ),
                 getUser(  ).getUserId(  ), DirectoryUtils.convertStringToInt( strIdDirectory ) );
 
         model.put( MARK_ID_DIRECTORY, strIdDirectory );

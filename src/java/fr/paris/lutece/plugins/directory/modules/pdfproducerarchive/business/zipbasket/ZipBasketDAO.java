@@ -38,7 +38,6 @@ import fr.paris.lutece.portal.service.plugin.Plugin;
 import fr.paris.lutece.util.sql.DAOUtil;
 
 import java.sql.Timestamp;
-
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -56,6 +55,7 @@ public class ZipBasketDAO implements IZipBasketDAO
     private static final String SQL_QUERY_CHECK = "SELECT id_zip_basket, name, url, zip_state, id_user, id_directory, id_record, archive_item_key, date_creation FROM directory_zip_basket WHERE id_user = ? AND id_directory = ? AND id_record = ? ;";
     private static final String SQL_QUERY_SELECT_ALL = "SELECT id_zip_basket, name, url, zip_state, id_user, id_directory, id_record, archive_item_key, date_creation FROM directory_zip_basket;";
     private static final String SQL_QUERY_SELECT_ALL_BY_ADMIN_USER = "SELECT id_zip_basket, name, url, zip_state, id_user, id_directory, id_record, archive_item_key, date_creation FROM directory_zip_basket WHERE id_user = ? AND id_directory = ? ;";
+    private static final String SQL_QUERY_SELECT_ALL_BY_ADMIN_USER_ORDER = "SELECT id_zip_basket, name, url, zip_state, id_user, id_directory, id_record, archive_item_key, date_creation FROM directory_zip_basket WHERE id_user = ? AND id_directory = ? ORDER BY name ;";
     private static final String SQL_QUERY_DELETE_ELEMENT = "DELETE FROM directory_zip_basket WHERE id_zip_basket = ? ";
     private static final String SQL_QUERY_UPDATE_STATUS = "UPDATE directory_zip_basket SET zip_state = ? , date_creation = ? WHERE id_zip_basket = ? ";
     private static final String SQL_QUERY_UPDATE_URL = "UPDATE directory_zip_basket SET url = ? , date_creation = ? WHERE id_zip_basket = ? ";
@@ -302,6 +302,42 @@ public class ZipBasketDAO implements IZipBasketDAO
         }
 
         daoUtil.free(  );
+
+        return lisZipBasket;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public List<ZipBasket> loadAllZipBasketByAdminUserOrder( Plugin plugin, int nIdAdminUser, int nIdDirectory )
+    {
+        List<ZipBasket> lisZipBasket = new ArrayList<ZipBasket>( );
+
+        DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECT_ALL_BY_ADMIN_USER_ORDER, plugin );
+        daoUtil.setInt( 1, nIdAdminUser );
+        daoUtil.setInt( 2, nIdDirectory );
+        daoUtil.executeQuery( );
+
+        while ( daoUtil.next( ) )
+        {
+            ZipBasket zipBasket = new ZipBasket( );
+            zipBasket.setIdZip( daoUtil.getInt( 1 ) );
+            zipBasket.setZipName( daoUtil.getString( 2 ) );
+            zipBasket.setZipUrl( daoUtil.getString( 3 ) );
+            zipBasket.setZipStatus( daoUtil.getString( 4 ) );
+            zipBasket.setIdAdminUser( daoUtil.getInt( 5 ) );
+            zipBasket.setIdDirectory( daoUtil.getInt( 6 ) );
+            zipBasket.setIdRecord( daoUtil.getInt( 7 ) );
+            zipBasket.setArchiveItemKey( daoUtil.getInt( 8 ) );
+            zipBasket.setDateZipAdded( daoUtil.getTimestamp( 9 ) );
+
+            if ( zipBasket != null )
+            {
+                lisZipBasket.add( zipBasket );
+            }
+        }
+
+        daoUtil.free( );
 
         return lisZipBasket;
     }

@@ -128,4 +128,14 @@ public interface IZipBasketDAO
      * @return a list of {@link ZipBasket}
      */
     List<ZipBasket> loadZipBasketByDate( Plugin plugin, Date dateExpiry );
+
+    /**
+     * This method load all element in basket by id admin user for a specific
+     * directory by order
+     * @param plugin plugin
+     * @param nIdAdminUser id of admin user
+     * @param nIdDirectory id of directory
+     * @return list of ZipBasket
+     */
+    List<ZipBasket> loadAllZipBasketByAdminUserOrder( Plugin plugin, int nIdAdminUser, int nIdDirectory );
 }

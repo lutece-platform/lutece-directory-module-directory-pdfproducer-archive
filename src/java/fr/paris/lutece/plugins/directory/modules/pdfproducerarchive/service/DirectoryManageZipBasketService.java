@@ -56,15 +56,14 @@ import fr.paris.lutece.portal.service.rbac.RBACService;
 import fr.paris.lutece.portal.service.spring.SpringContextService;
 import fr.paris.lutece.portal.service.util.AppPropertiesService;
 
-import org.apache.commons.lang.StringUtils;
-
 import java.io.File;
-
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
 import javax.servlet.http.HttpServletRequest;
+
+import org.apache.commons.lang.StringUtils;
 
 
 /**
@@ -125,6 +124,19 @@ public class DirectoryManageZipBasketService
     public List<ZipBasket> loadAllZipBasketByAdminUser( Plugin plugin, int nIdAdminUser, int nIdDirectory )
     {
         return ZipBasketHome.loadAllZipBasketByAdminUser( plugin, nIdAdminUser, nIdDirectory );
+    }
+
+    /**
+     * This method load all element in basket by id admin user for a specific
+     * directory by order
+     * @param plugin plugin
+     * @param nIdAdminUser id of admin user
+     * @param nIdDirectory id of directory
+     * @return list of ZipBasket
+     */
+    public List<ZipBasket> loadAllZipBasketByAdminUserOrder( Plugin plugin, int nIdAdminUser, int nIdDirectory )
+    {
+        return ZipBasketHome.loadAllZipBasketByAdminUserOrder( plugin, nIdAdminUser, nIdDirectory );
     }
 
     /**

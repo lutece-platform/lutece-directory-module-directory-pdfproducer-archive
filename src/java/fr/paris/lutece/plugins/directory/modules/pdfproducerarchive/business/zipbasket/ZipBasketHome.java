@@ -169,4 +169,17 @@ public final class ZipBasketHome
     {
         return _dao.loadZipBasketByDate( plugin, dateExpiry );
     }
+
+    /**
+     * This method load all element in basket by id admin user for a specific
+     * directory by order
+     * @param plugin plugin
+     * @param nIdAdminUser id of admin user
+     * @param nIdDirectory id of directory
+     * @return list of ZipBasket
+     */
+    public static List<ZipBasket> loadAllZipBasketByAdminUserOrder( Plugin plugin, int nIdAdminUser, int nIdDirectory )
+    {
+        return _dao.loadAllZipBasketByAdminUserOrder( plugin, nIdAdminUser, nIdDirectory );
+    }
 }
