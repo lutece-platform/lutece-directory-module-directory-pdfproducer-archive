@@ -3,7 +3,7 @@
     <!-- Plugin Informations -->
     <name>directory-pdfproducer-archive</name>
     <class>fr.paris.lutece.plugins.directory.modules.pdfproducerarchive.service.DirectoryPDFProducerArchivePlugin</class>
-    <version>1.0.6</version>
+    <version>1.0.7</version>
     <documentation/>
     <installation/>
     <changes/>
