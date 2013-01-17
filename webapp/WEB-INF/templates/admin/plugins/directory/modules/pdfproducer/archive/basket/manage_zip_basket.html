@@ -72,7 +72,7 @@
 		<div class="content-box-content">
 			<#if daemon_next_schedule?? && daemon_next_schedule?has_content>
 				<p>
-					${daemon_next_schedule}
+					<span class="alert">${daemon_next_schedule}</span>
 				</p>
 			</#if>
 			<#if list_zipbasket?has_content>

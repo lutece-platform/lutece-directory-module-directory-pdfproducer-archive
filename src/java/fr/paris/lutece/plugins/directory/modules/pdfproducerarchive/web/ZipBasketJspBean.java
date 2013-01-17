@@ -107,6 +107,7 @@ public class ZipBasketJspBean extends PluginAdminPageJspBean
     private static final String MESSAGE_REMOVE_ALL_ZIP = "module.directory.pdfproducerarchive.message.remove_all_zip";
     private static final String MESSAGE_ERROR_REMOVE_ALL_ZIP = "module.directory.pdfproducerarchive.message.error_remove_all_zip";
     private static final String MESSAGE_DAEMON_NEXT_PASS = "module.directory.pdfproducerarchive.message.daemonArchiveNextPass";
+    private static final String MESSAGE_DAEMON_RUNNING = "module.directory.pdfproducerarchive.message.daemonArchiveRunning";
 
     //Markers
     private static final String MARK_ID_DIRECTORY = "idDirectory";
@@ -218,6 +219,7 @@ public class ZipBasketJspBean extends PluginAdminPageJspBean
             }
             if ( dateLastRun != null )
             {
+                String strLabelNextDaemonPass = StringUtils.EMPTY;
                 Date currentDate = new Date( );
                 long lTimbeBeforeNextPassage = zipDaemonEntry.getInterval( ) * 1000l
                         - ( currentDate.getTime( ) - dateLastRun.getTime( ) );
@@ -230,10 +232,14 @@ public class ZipBasketJspBean extends PluginAdminPageJspBean
                     int nSeconds = (int) lTimbeBeforeNextPassage / 1000;
                     Object[] args = { Integer.toString( nHours ), Integer.toString( nMinutes ),
                             Integer.toString( nSeconds ) };
-                    String strLabelNextDaemonPass = I18nService.getLocalizedString( MESSAGE_DAEMON_NEXT_PASS, args,
+                    strLabelNextDaemonPass = I18nService.getLocalizedString( MESSAGE_DAEMON_NEXT_PASS, args,
                             locale );
-                    model.put( MARK_DAEMON_NEXT_SCHEDULE, strLabelNextDaemonPass );
                 }
+                else
+                {
+                    strLabelNextDaemonPass = I18nService.getLocalizedString( MESSAGE_DAEMON_RUNNING, locale );
+                }
+                model.put( MARK_DAEMON_NEXT_SCHEDULE, strLabelNextDaemonPass );
             }
         }
 
