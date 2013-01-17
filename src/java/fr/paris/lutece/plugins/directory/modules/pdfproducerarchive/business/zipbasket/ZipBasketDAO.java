@@ -55,7 +55,7 @@ public class ZipBasketDAO implements IZipBasketDAO
     private static final String SQL_QUERY_CHECK = "SELECT id_zip_basket, name, url, zip_state, id_user, id_directory, id_record, archive_item_key, date_creation FROM directory_zip_basket WHERE id_user = ? AND id_directory = ? AND id_record = ? ;";
     private static final String SQL_QUERY_SELECT_ALL = "SELECT id_zip_basket, name, url, zip_state, id_user, id_directory, id_record, archive_item_key, date_creation FROM directory_zip_basket;";
     private static final String SQL_QUERY_SELECT_ALL_BY_ADMIN_USER = "SELECT id_zip_basket, name, url, zip_state, id_user, id_directory, id_record, archive_item_key, date_creation FROM directory_zip_basket WHERE id_user = ? AND id_directory = ? ;";
-    private static final String SQL_QUERY_SELECT_ALL_BY_ADMIN_USER_ORDER = "SELECT id_zip_basket, name, url, zip_state, id_user, id_directory, id_record, archive_item_key, date_creation FROM directory_zip_basket WHERE id_user = ? AND id_directory = ? ORDER BY name ;";
+    private static final String SQL_QUERY_SELECT_ALL_BY_ADMIN_USER_ORDER = "SELECT id_zip_basket, name, url, zip_state, id_user, id_directory, id_record, archive_item_key, date_creation FROM directory_zip_basket WHERE id_user = ? AND id_directory = ? ORDER BY id_record ;";
     private static final String SQL_QUERY_DELETE_ELEMENT = "DELETE FROM directory_zip_basket WHERE id_zip_basket = ? ";
     private static final String SQL_QUERY_UPDATE_STATUS = "UPDATE directory_zip_basket SET zip_state = ? , date_creation = ? WHERE id_zip_basket = ? ";
     private static final String SQL_QUERY_UPDATE_URL = "UPDATE directory_zip_basket SET url = ? , date_creation = ? WHERE id_zip_basket = ? ";

@@ -48,6 +48,10 @@ import fr.paris.lutece.plugins.directory.modules.pdfproducerarchive.service.Dire
 import fr.paris.lutece.plugins.directory.modules.pdfproducerarchive.utils.StatusZipEnum;
 import fr.paris.lutece.plugins.directory.utils.DirectoryUtils;
 import fr.paris.lutece.portal.service.admin.AccessDeniedException;
+import fr.paris.lutece.portal.service.admin.AdminUserService;
+import fr.paris.lutece.portal.service.daemon.AppDaemonService;
+import fr.paris.lutece.portal.service.daemon.DaemonEntry;
+import fr.paris.lutece.portal.service.i18n.I18nService;
 import fr.paris.lutece.portal.service.message.AdminMessage;
 import fr.paris.lutece.portal.service.message.AdminMessageService;
 import fr.paris.lutece.portal.service.rbac.RBACService;
@@ -56,12 +60,20 @@ import fr.paris.lutece.portal.service.template.AppTemplateService;
 import fr.paris.lutece.portal.service.util.AppPathService;
 import fr.paris.lutece.portal.web.admin.PluginAdminPageJspBean;
 import fr.paris.lutece.portal.web.constants.Messages;
+import fr.paris.lutece.portal.web.constants.Parameters;
 import fr.paris.lutece.util.html.HtmlTemplate;
+import fr.paris.lutece.util.sort.AttributeComparator;
 import fr.paris.lutece.util.string.StringUtil;
 import fr.paris.lutece.util.url.UrlItem;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
@@ -94,6 +106,7 @@ public class ZipBasketJspBean extends PluginAdminPageJspBean
     private static final String MESSAGE_CONFIRM_REMOVE_ALL_ZIP = "module.directory.pdfproducerarchive.message.confirm_remove_all_zip";
     private static final String MESSAGE_REMOVE_ALL_ZIP = "module.directory.pdfproducerarchive.message.remove_all_zip";
     private static final String MESSAGE_ERROR_REMOVE_ALL_ZIP = "module.directory.pdfproducerarchive.message.error_remove_all_zip";
+    private static final String MESSAGE_DAEMON_NEXT_PASS = "module.directory.pdfproducerarchive.message.daemonArchiveNextPass";
 
     //Markers
     private static final String MARK_ID_DIRECTORY = "idDirectory";
@@ -101,7 +114,8 @@ public class ZipBasketJspBean extends PluginAdminPageJspBean
     //marker for zipbasket
     private static final String MARK_LIST_ZIPBASKET = "list_zipbasket";
     private static final String MARK_PERMISSION_DELETE_ZIP = "permission_delete_zip";
-
+    private static final String MARK_DAEMON_NEXT_SCHEDULE = "daemon_next_schedule";
+    
     // JSP URL
     private static final String JSP_MANAGE_DIRECTORY_RECORD = DirectoryUtils.JSP_MANAGE_DIRECTORY_RECORD;
     private static final String JSP_MANAGE_ZIPBASKET = "jsp/admin/plugins/directory/modules/pdfproducer/archive/basket/ManageZipBasket.jsp";
@@ -117,6 +131,7 @@ public class ZipBasketJspBean extends PluginAdminPageJspBean
     private static final String PARAMETER_ID_ZIPBASKET = "id_zipbasket";
 
     //constant
+    public static final String DAEMON_ARCHIVE_ID = "archiveIndexer";
     private static final String DEFAULT_TYPE_FILE_NAME = "default";
     private static final String DIRECTORY_ENTRY_FILE_NAME = "directory_entry";
     private static final DirectoryManageZipBasketService _manageZipBasketService = (DirectoryManageZipBasketService) SpringContextService.getPluginBean( DirectoryPDFProducerPlugin.PLUGIN_NAME,
@@ -143,8 +158,21 @@ public class ZipBasketJspBean extends PluginAdminPageJspBean
         }
 
         Map<String, Object> model = new HashMap<String, Object>(  );
+
         List<ZipBasket> listZipBasket = _manageZipBasketService.loadAllZipBasketByAdminUserOrder( getPlugin( ),
                 getUser(  ).getUserId(  ), DirectoryUtils.convertStringToInt( strIdDirectory ) );
+
+        String strSortedAttributeName = request.getParameter( Parameters.SORTED_ATTRIBUTE_NAME );
+        String strAscSort = null;
+
+        if ( strSortedAttributeName != null )
+        {
+            strAscSort = request.getParameter( Parameters.SORTED_ASC );
+
+            boolean bIsAscSort = Boolean.parseBoolean( strAscSort );
+
+            Collections.sort( listZipBasket, new AttributeComparator( strSortedAttributeName, bIsAscSort ) );
+        }
 
         model.put( MARK_ID_DIRECTORY, strIdDirectory );
         model.put( MARK_LIST_ZIPBASKET, listZipBasket );
@@ -161,6 +189,51 @@ public class ZipBasketJspBean extends PluginAdminPageJspBean
                 zipBasket.setListZipBasketAction( _manageZipBasketService.selectActionsByZipBasketState( 
                         DirectoryUtils.convertStringToInt( zipBasket.getZipStatus(  ) ), getLocale(  ), directory,
                         getUser(  ), getPlugin(  ) ) );
+            }
+        }
+
+        Collection<DaemonEntry> listDaemonEntries = AppDaemonService.getDaemonEntries( );
+        if ( listDaemonEntries != null && listDaemonEntries.size( ) > 0 )
+        {
+            DaemonEntry zipDaemonEntry = null;
+            for ( DaemonEntry entry : listDaemonEntries )
+            {
+                if ( StringUtils.equals( entry.getId( ), DAEMON_ARCHIVE_ID ) )
+                {
+                    zipDaemonEntry = entry;
+                }
+            }
+            Locale locale = AdminUserService.getLocale( request );
+
+            // The method getLastRunDate( ) use a deprecated method, that hard-code the format of the date.
+            SimpleDateFormat formatterDateTime = new SimpleDateFormat( "dd'/'MM'/'yyyy' 'HH':'mm", Locale.FRANCE );
+            Date dateLastRun;
+            try
+            {
+                dateLastRun = formatterDateTime.parse( zipDaemonEntry.getLastRunDate( ) );
+            }
+            catch ( ParseException e )
+            {
+                dateLastRun = null;
+            }
+            if ( dateLastRun != null )
+            {
+                Date currentDate = new Date( );
+                long lTimbeBeforeNextPassage = zipDaemonEntry.getInterval( ) * 1000l
+                        - ( currentDate.getTime( ) - dateLastRun.getTime( ) );
+                if ( lTimbeBeforeNextPassage > 0 )
+                {
+                    int nHours = (int) lTimbeBeforeNextPassage / 3600000; // We get the number of hours
+                    lTimbeBeforeNextPassage = lTimbeBeforeNextPassage % 3600000;
+                    int nMinutes = (int) lTimbeBeforeNextPassage / 60000;
+                    lTimbeBeforeNextPassage = lTimbeBeforeNextPassage % 60000;
+                    int nSeconds = (int) lTimbeBeforeNextPassage / 1000;
+                    Object[] args = { Integer.toString( nHours ), Integer.toString( nMinutes ),
+                            Integer.toString( nSeconds ) };
+                    String strLabelNextDaemonPass = I18nService.getLocalizedString( MESSAGE_DAEMON_NEXT_PASS, args,
+                            locale );
+                    model.put( MARK_DAEMON_NEXT_SCHEDULE, strLabelNextDaemonPass );
+                }
             }
         }
 
