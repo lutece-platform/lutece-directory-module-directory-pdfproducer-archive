@@ -126,19 +126,9 @@ public class AsyncAddZipBasketService implements Runnable
 
             if ( !bAllExportAlreadyExists )
             {
-                boolean bZipAdded = _manageZipBasketService
-                        .addZipBasket( AdminUserHome.findByPrimaryKey( _nIdAdminUser ), _locale, strName,
-                                _nIdAdminUser, _plugin, _nIdDirectory, nIdRecord,
-                                _manageConfigProducerService.loadListConfigEntry( _plugin, nIdConfig ) );
-
-                if ( !bZipAdded )
-                {
-                    return;
-                }
-            }
-            else
-            {
-                return;
+                _manageZipBasketService.addZipBasket( AdminUserHome.findByPrimaryKey( _nIdAdminUser ), _locale,
+                        strName, _nIdAdminUser, _plugin, _nIdDirectory, nIdRecord,
+                        _manageConfigProducerService.loadListConfigEntry( _plugin, nIdConfig ) );
             }
         }
     }
