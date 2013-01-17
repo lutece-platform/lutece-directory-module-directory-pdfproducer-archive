@@ -39,20 +39,22 @@ import fr.paris.lutece.plugins.archiveclient.service.util.ArchiveClientException
 import fr.paris.lutece.plugins.directory.modules.pdfproducer.utils.PDFUtils;
 import fr.paris.lutece.plugins.directory.modules.pdfproducerarchive.utils.FilesUtils;
 import fr.paris.lutece.plugins.directory.utils.DirectoryUtils;
+import fr.paris.lutece.portal.business.user.AdminUser;
+import fr.paris.lutece.portal.service.admin.AdminUserService;
 import fr.paris.lutece.portal.service.util.AppLogService;
 import fr.paris.lutece.portal.service.util.AppPropertiesService;
 import fr.paris.lutece.util.string.StringUtil;
 
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringUtils;
-
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-
 import java.util.List;
+import java.util.Locale;
 
 import javax.servlet.http.HttpServletRequest;
+
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
 
 
 /**
@@ -89,6 +91,24 @@ public final class ZipService
     public int doGeneratePDFAndZip( HttpServletRequest request, String strName, int nIdKeyUser, int nIdDirectory,
         List<Integer> listIdEntryConfig, int nIdRecord )
     {
+        return doGeneratePDFAndZip( AdminUserService.getAdminUser( request ), AdminUserService.getLocale( request ),
+                strName, nIdKeyUser, nIdDirectory, listIdEntryConfig, nIdRecord );
+    }
+
+    /**
+     * Method to generate zip
+     * @param adminUser The adminUser
+     * @param locale The locale
+     * @param strName directory name
+     * @param nIdKeyUser id key user
+     * @param nIdDirectory id directory
+     * @param listIdEntryConfig config to build pdf
+     * @param nIdRecord the id record
+     * @return the archive id
+     */
+    public int doGeneratePDFAndZip( AdminUser adminUser, Locale locale, String strName, int nIdKeyUser,
+            int nIdDirectory, List<Integer> listIdEntryConfig, int nIdRecord )
+    {
         String strDirectoryName = strName;
 
         if ( StringUtils.isNotEmpty( strName ) )
@@ -109,7 +129,7 @@ public final class ZipService
         try
         {
             os = new FileOutputStream( new File( strPathFilesGenerate + "/" + strDirectoryName + EXTENSION_FILE_PDF ) );
-            PDFUtils.doCreateDocumentPDF( request, strDirectoryName, os, nIdRecord, listIdEntryConfig );
+            PDFUtils.doCreateDocumentPDF( adminUser, locale, strDirectoryName, os, nIdRecord, listIdEntryConfig );
         }
         catch ( FileNotFoundException e )
         {
@@ -120,7 +140,7 @@ public final class ZipService
             IOUtils.closeQuietly( os );
         }
 
-        FilesUtils.getAllFilesRecorded( request, strPathFilesGenerate, listIdEntryConfig, nIdRecord );
+        FilesUtils.getAllFilesRecorded( adminUser, strPathFilesGenerate, listIdEntryConfig, nIdRecord );
 
         int nArchiveItemKey;
 

@@ -55,17 +55,16 @@ import fr.paris.lutece.portal.service.util.AppLogService;
 import fr.paris.lutece.portal.service.util.AppPathService;
 import fr.paris.lutece.portal.service.util.AppPropertiesService;
 
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringUtils;
-
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
+
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
 
 
 /**
@@ -145,11 +144,26 @@ public final class FilesUtils
      * @param listIdEntryConfig config list of id entry
      * @param nIdRecord the id record
      */
+    @Deprecated
     public static void getAllFilesRecorded( HttpServletRequest request, String strTempDirectoryExtract,
-        List<Integer> listIdEntryConfig, int nIdRecord )
+            List<Integer> listIdEntryConfig, int nIdRecord )
+    {
+        getAllFilesRecorded( AdminUserService.getAdminUser( request ), strTempDirectoryExtract, listIdEntryConfig,
+                nIdRecord );
+    }
+
+    /**
+     * Thie method get all recorded files
+     * @param adminUser The adminUser
+     * @param locale The locale
+     * @param strTempDirectoryExtract the temporary directory for extraction
+     * @param listIdEntryConfig config list of id entry
+     * @param nIdRecord the id record
+     */
+    public static void getAllFilesRecorded( AdminUser adminUser, String strTempDirectoryExtract,
+            List<Integer> listIdEntryConfig, int nIdRecord )
     {
         Plugin plugin = PluginService.getPlugin( DirectoryPlugin.PLUGIN_NAME );
-        AdminUser adminUser = AdminUserService.getAdminUser( request );
         EntryFilter filter;
 
         Record record = RecordHome.findByPrimaryKey( nIdRecord, plugin );

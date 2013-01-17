@@ -45,6 +45,18 @@
 				fr.paris.lutece.plugins.directory.modules.pdfproducerarchive.service.daemon.ZipCleanerDaemon
 			</daemon-class>
 		</daemon>
+		<daemon>
+			<daemon-id>addZipToBacket</daemon-id>
+			<daemon-name>
+				module.directory.pdfproducerarchive.daemon.addZipToBacket.name
+			</daemon-name>
+			<daemon-description>
+				module.directory.pdfproducerarchive.daemon.addZipToBacket.description
+			</daemon-description>
+			<daemon-class>
+				fr.paris.lutece.plugins.directory.modules.pdfproducerarchive.service.daemon.AddZipToBasketDaemon
+			</daemon-class>
+		</daemon>
 	</daemons>
 	<!-- RBAC Resources -->
     <rbac-resource-types>

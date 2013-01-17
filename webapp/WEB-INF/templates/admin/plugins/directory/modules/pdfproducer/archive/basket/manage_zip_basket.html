@@ -75,6 +75,11 @@
 					<span class="alert">${daemon_next_schedule}</span>
 				</p>
 			</#if>
+			<#if daemon_update_status_next_schedule?? && daemon_update_status_next_schedule?has_content>
+				<p>
+					<span class="alert">${daemon_update_status_next_schedule}</span>
+				</p>
+			</#if>
 			<#if list_zipbasket?has_content>
 				<form action="jsp/admin/plugins/directory/modules/pdfproducer/archive/basket/ConfirmExportAllZip.jsp" method="post">
 					<input type="hidden" value="${idDirectory}" name="id_directory" />

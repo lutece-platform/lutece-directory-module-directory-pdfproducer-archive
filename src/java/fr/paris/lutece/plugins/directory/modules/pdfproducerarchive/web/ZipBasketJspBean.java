@@ -35,16 +35,13 @@ package fr.paris.lutece.plugins.directory.modules.pdfproducerarchive.web;
 
 import fr.paris.lutece.plugins.directory.business.Directory;
 import fr.paris.lutece.plugins.directory.business.Record;
-import fr.paris.lutece.plugins.directory.business.RecordField;
-import fr.paris.lutece.plugins.directory.business.RecordFieldFilter;
-import fr.paris.lutece.plugins.directory.modules.pdfproducer.business.producerconfig.DefaultConfigProducer;
-import fr.paris.lutece.plugins.directory.modules.pdfproducer.business.producerconfig.IConfigProducer;
 import fr.paris.lutece.plugins.directory.modules.pdfproducer.service.ConfigProducerService;
 import fr.paris.lutece.plugins.directory.modules.pdfproducer.service.DirectoryPDFProducerPlugin;
-import fr.paris.lutece.plugins.directory.modules.pdfproducer.utils.PDFUtils;
 import fr.paris.lutece.plugins.directory.modules.pdfproducerarchive.business.zipbasket.ZipBasket;
+import fr.paris.lutece.plugins.directory.modules.pdfproducerarchive.business.zipbasket.queue.ZipItem;
 import fr.paris.lutece.plugins.directory.modules.pdfproducerarchive.service.DirectoryManageZipBasketService;
 import fr.paris.lutece.plugins.directory.modules.pdfproducerarchive.service.DirectoryPDFProducerArchiveResourceIdService;
+import fr.paris.lutece.plugins.directory.modules.pdfproducerarchive.service.daemon.AddZipToBasketDaemon;
 import fr.paris.lutece.plugins.directory.modules.pdfproducerarchive.utils.StatusZipEnum;
 import fr.paris.lutece.plugins.directory.utils.DirectoryUtils;
 import fr.paris.lutece.portal.service.admin.AccessDeniedException;
@@ -93,7 +90,6 @@ public class ZipBasketJspBean extends PluginAdminPageJspBean
     // Messages (I18n keys)
     private static final String MESSAGE_CONFIRM_ADD_ZIP_TO_BASKET = "module.directory.pdfproducerarchive.message.confirm_add_zip_to_basket";
     private static final String MESSAGE_ADD_ZIP_TO_BASKET = "module.directory.pdfproducerarchive.message.add_zip_to_basket";
-    private static final String MESSAGE_ERROR_ADD_ZIP_TO_BASKET = "module.directory.pdfproducerarchive.message.error_add_zip_to_basket";
     private static final String MESSAGE_CONFIRM_REMOVE_ZIP_TO_BASKET = "module.directory.pdfproducerarchive.message.confirm_remove_zip_to_basket";
     private static final String MESSAGE_REMOVE_ZIP_TO_BASKET = "module.directory.pdfproducerarchive.message.remove_zip_to_basket";
     private static final String MESSAGE_ERROR_REMOVE_ZIP_TO_BASKET = "module.directory.pdfproducerarchive.message.error_remove_zip_to_basket";
@@ -101,13 +97,14 @@ public class ZipBasketJspBean extends PluginAdminPageJspBean
     private static final String MESSAGE_EXPORT_ALL_ZIP = "module.directory.pdfproducerarchive.message.export_all_zip";
     private static final String MESSAGE_ERROR_EXPORT_ALL_ZIP = "module.directory.pdfproducerarchive.message.error_export_all_zip";
     private static final String MESSAGE_EXPORT_ALL_ZIP_ALREADY_EXISTS = "module.directory.pdfproducerarchive.message.error_export_all_zip.already_exists";
-    private static final String MESSAGE_ERROR_ADD_ZIP_TO_BASKET_ALLEXPORT = "module.directory.pdfproducerarchive.message.error_add_zip_to_basket.allexport";
     private static final String MESSAGE_ERROR_REMOVE_ZIP_TO_BASKET_ALLEXPORT = "module.directory.pdfproducerarchive.message.error_remove_zip_to_basket.allexport";
     private static final String MESSAGE_CONFIRM_REMOVE_ALL_ZIP = "module.directory.pdfproducerarchive.message.confirm_remove_all_zip";
     private static final String MESSAGE_REMOVE_ALL_ZIP = "module.directory.pdfproducerarchive.message.remove_all_zip";
     private static final String MESSAGE_ERROR_REMOVE_ALL_ZIP = "module.directory.pdfproducerarchive.message.error_remove_all_zip";
     private static final String MESSAGE_DAEMON_NEXT_PASS = "module.directory.pdfproducerarchive.message.daemonArchiveNextPass";
     private static final String MESSAGE_DAEMON_RUNNING = "module.directory.pdfproducerarchive.message.daemonArchiveRunning";
+    private static final String MESSAGE_DAEMON_UPDATE_STATUS_NEXT_PASS = "module.directory.pdfproducerarchive.message.daemonUpdateStatusNextPass";
+    private static final String MESSAGE_DAEMON_UPDATE_STATUS_RUNNING = "module.directory.pdfproducerarchive.message.daemonUpdateStatusRunning";
 
     //Markers
     private static final String MARK_ID_DIRECTORY = "idDirectory";
@@ -116,6 +113,7 @@ public class ZipBasketJspBean extends PluginAdminPageJspBean
     private static final String MARK_LIST_ZIPBASKET = "list_zipbasket";
     private static final String MARK_PERMISSION_DELETE_ZIP = "permission_delete_zip";
     private static final String MARK_DAEMON_NEXT_SCHEDULE = "daemon_next_schedule";
+    private static final String MARK_DAEMON_UPDATE_STATUS_NEXT_SCHEDULE = "daemon_update_status_next_schedule";
     
     // JSP URL
     private static final String JSP_MANAGE_DIRECTORY_RECORD = DirectoryUtils.JSP_MANAGE_DIRECTORY_RECORD;
@@ -133,8 +131,7 @@ public class ZipBasketJspBean extends PluginAdminPageJspBean
 
     //constant
     public static final String DAEMON_ARCHIVE_ID = "archiveIndexer";
-    private static final String DEFAULT_TYPE_FILE_NAME = "default";
-    private static final String DIRECTORY_ENTRY_FILE_NAME = "directory_entry";
+    public static final String DAEMON_UPDATE_STATUS_ID = "zipBasketCheckStatus";
     private static final DirectoryManageZipBasketService _manageZipBasketService = (DirectoryManageZipBasketService) SpringContextService.getPluginBean( DirectoryPDFProducerPlugin.PLUGIN_NAME,
             "directory-pdfproducer-archive.directoryManageZipBasketService" );
     private static final ConfigProducerService _manageConfigProducerService = (ConfigProducerService) SpringContextService.getPluginBean( DirectoryPDFProducerPlugin.PLUGIN_NAME,
@@ -193,55 +190,14 @@ public class ZipBasketJspBean extends PluginAdminPageJspBean
             }
         }
 
-        Collection<DaemonEntry> listDaemonEntries = AppDaemonService.getDaemonEntries( );
-        if ( listDaemonEntries != null && listDaemonEntries.size( ) > 0 )
-        {
-            DaemonEntry zipDaemonEntry = null;
-            for ( DaemonEntry entry : listDaemonEntries )
-            {
-                if ( StringUtils.equals( entry.getId( ), DAEMON_ARCHIVE_ID ) )
-                {
-                    zipDaemonEntry = entry;
-                }
-            }
-            Locale locale = AdminUserService.getLocale( request );
-
-            // The method getLastRunDate( ) use a deprecated method, that hard-code the format of the date.
-            SimpleDateFormat formatterDateTime = new SimpleDateFormat( "dd'/'MM'/'yyyy' 'HH':'mm", Locale.FRANCE );
-            Date dateLastRun;
-            try
-            {
-                dateLastRun = formatterDateTime.parse( zipDaemonEntry.getLastRunDate( ) );
-            }
-            catch ( ParseException e )
-            {
-                dateLastRun = null;
-            }
-            if ( dateLastRun != null )
-            {
-                String strLabelNextDaemonPass = StringUtils.EMPTY;
-                Date currentDate = new Date( );
-                long lTimbeBeforeNextPassage = zipDaemonEntry.getInterval( ) * 1000l
-                        - ( currentDate.getTime( ) - dateLastRun.getTime( ) );
-                if ( lTimbeBeforeNextPassage > 0 )
-                {
-                    int nHours = (int) lTimbeBeforeNextPassage / 3600000; // We get the number of hours
-                    lTimbeBeforeNextPassage = lTimbeBeforeNextPassage % 3600000;
-                    int nMinutes = (int) lTimbeBeforeNextPassage / 60000;
-                    lTimbeBeforeNextPassage = lTimbeBeforeNextPassage % 60000;
-                    int nSeconds = (int) lTimbeBeforeNextPassage / 1000;
-                    Object[] args = { Integer.toString( nHours ), Integer.toString( nMinutes ),
-                            Integer.toString( nSeconds ) };
-                    strLabelNextDaemonPass = I18nService.getLocalizedString( MESSAGE_DAEMON_NEXT_PASS, args,
-                            locale );
-                }
-                else
-                {
-                    strLabelNextDaemonPass = I18nService.getLocalizedString( MESSAGE_DAEMON_RUNNING, locale );
-                }
-                model.put( MARK_DAEMON_NEXT_SCHEDULE, strLabelNextDaemonPass );
-            }
-        }
+        model.put(
+                MARK_DAEMON_NEXT_SCHEDULE,
+                getLabelTimeBeforeNextDaemonPassage( MESSAGE_DAEMON_NEXT_PASS, MESSAGE_DAEMON_RUNNING, request,
+                        DAEMON_ARCHIVE_ID ) );
+        model.put(
+                MARK_DAEMON_UPDATE_STATUS_NEXT_SCHEDULE,
+                getLabelTimeBeforeNextDaemonPassage( MESSAGE_DAEMON_UPDATE_STATUS_NEXT_PASS,
+                        MESSAGE_DAEMON_UPDATE_STATUS_RUNNING, request, DAEMON_UPDATE_STATUS_ID ) );
 
         HtmlTemplate templateList = AppTemplateService.getTemplate( TEMPLATE_MANAGE_ZIP_BASKET, getLocale(  ), model );
 
@@ -337,77 +293,16 @@ public class ZipBasketJspBean extends PluginAdminPageJspBean
 
         // Fetch directory
         int nIdDirectory = DirectoryUtils.convertStringToInt( strIdDirectory );
-        Directory directory = _manageZipBasketService.getDirectory( nIdDirectory );
 
-        // Fetch config
-        int nIdConfig = _manageConfigProducerService.loadDefaultConfig( getPlugin(  ), nIdDirectory );
-        IConfigProducer configProducer = null;
+        ZipItem item = new ZipItem( );
+        item.setIdAdminUser( getUser( ).getUserId( ) );
+        item.setIdDirectory( nIdDirectory );
+        item.setListIdRecord( listIdsRecord );
+        item.setLocale( AdminUserService.getLocale( request ) );
 
-        if ( ( nIdConfig == -1 ) || ( nIdConfig == 0 ) )
-        {
-            configProducer = new DefaultConfigProducer(  );
-        }
-        else
-        {
-            configProducer = _manageConfigProducerService.loadConfig( getPlugin(  ), nIdConfig );
-        }
+        AddZipToBasketDaemon.addItemToQueue( item );
 
-        String strTypeConfigFileName = configProducer.getTypeConfigFileName(  );
         UrlItem url = new UrlItem( getJspManageDirectoryRecord( request, nIdDirectory ) );
-
-        for ( String strIdRecord : listIdsRecord )
-        {
-            int nIdRecord = DirectoryUtils.convertStringToInt( strIdRecord );
-            String strName = null;
-
-            // Build file name
-            if ( DEFAULT_TYPE_FILE_NAME.equals( strTypeConfigFileName ) )
-            {
-                strName = PDFUtils.doPurgeNameFile( StringUtil.replaceAccent( directory.getTitle(  ) ).replace( " ", "_" ) +
-                        "_" + strIdRecord );
-            }
-            else if ( DIRECTORY_ENTRY_FILE_NAME.equals( strTypeConfigFileName ) )
-            {
-                RecordFieldFilter filter = new RecordFieldFilter(  );
-                filter.setIdRecord( nIdRecord );
-                filter.setIdEntry( configProducer.getIdEntryFileName(  ) );
-
-                List<RecordField> listRecordField = _manageZipBasketService.getRecordFields( filter );
-
-                for ( RecordField recordField : listRecordField )
-                {
-                    strName = PDFUtils.doPurgeNameFile( recordField.getEntry(  )
-                                                                   .convertRecordFieldValueToString( recordField,
-                                getLocale(  ), false, false ) );
-                }
-            }
-            else
-            {
-                strName = PDFUtils.doPurgeNameFile( configProducer.getTextFileName(  ) + "_" + strIdRecord );
-            }
-
-            boolean bAllExportAlreadyExists = _manageZipBasketService.existsZipBasket( getUser(  ).getUserId(  ),
-                    getPlugin(  ), nIdDirectory, -1 );
-
-            if ( !bAllExportAlreadyExists )
-            {
-                boolean bZipAdded = _manageZipBasketService.addZipBasket( request, strName, getUser(  ).getUserId(  ),
-                        getPlugin(  ), nIdDirectory, nIdRecord,
-                        _manageConfigProducerService.loadListConfigEntry( getPlugin(  ), nIdConfig ) );
-
-                if ( !bZipAdded )
-                {
-                    return AdminMessageService.getMessageUrl( request, MESSAGE_ERROR_ADD_ZIP_TO_BASKET, url.getUrl(  ),
-                        AdminMessage.TYPE_STOP );
-                }
-            }
-            else
-            {
-                return AdminMessageService.getMessageUrl( request, MESSAGE_ERROR_ADD_ZIP_TO_BASKET_ALLEXPORT,
-                    url.getUrl(  ), AdminMessage.TYPE_STOP );
-            }
-        }
-
         return AdminMessageService.getMessageUrl( request, MESSAGE_ADD_ZIP_TO_BASKET, url.getUrl(  ),
             AdminMessage.TYPE_INFO );
     }
@@ -639,5 +534,59 @@ public class ZipBasketJspBean extends PluginAdminPageJspBean
     {
         return AppPathService.getBaseUrl( request ) + JSP_MANAGE_DIRECTORY_RECORD + "?" + PARAMETER_ID_DIRECTORY + "=" +
         nIdDirectory + "&" + PARAMETER_SESSION + "=" + PARAMETER_SESSION;
+    }
+
+    private String getLabelTimeBeforeNextDaemonPassage( String strI18nKeyWait, String strI18nKeyDaemonRunning,
+            HttpServletRequest request, String strDaemonId )
+    {
+        DaemonEntry daemonEntry = null;
+        Collection<DaemonEntry> listDaemonEntries = AppDaemonService.getDaemonEntries( );
+        if ( listDaemonEntries != null && listDaemonEntries.size( ) > 0 )
+        {
+            for ( DaemonEntry entry : listDaemonEntries )
+            {
+                if ( StringUtils.equals( entry.getId( ), strDaemonId ) )
+                {
+                    daemonEntry = entry;
+                }
+            }
+            Locale locale = AdminUserService.getLocale( request );
+
+            // The method getLastRunDate( ) use a deprecated method, that hard-code the format of the date.
+            SimpleDateFormat formatterDateTime = new SimpleDateFormat( "dd'/'MM'/'yyyy' 'HH':'mm", Locale.FRANCE );
+            Date dateLastRun;
+            try
+            {
+                dateLastRun = formatterDateTime.parse( daemonEntry.getLastRunDate( ) );
+            }
+            catch ( ParseException e )
+            {
+                dateLastRun = null;
+            }
+            if ( dateLastRun != null )
+            {
+                String strLabelNextDaemonPass = StringUtils.EMPTY;
+                Date currentDate = new Date( );
+                long lTimbeBeforeNextPassage = daemonEntry.getInterval( ) * 1000l
+                        - ( currentDate.getTime( ) - dateLastRun.getTime( ) );
+                if ( lTimbeBeforeNextPassage > 0 )
+                {
+                    int nHours = (int) lTimbeBeforeNextPassage / 3600000; // We get the number of hours
+                    lTimbeBeforeNextPassage = lTimbeBeforeNextPassage % 3600000;
+                    int nMinutes = (int) lTimbeBeforeNextPassage / 60000;
+                    lTimbeBeforeNextPassage = lTimbeBeforeNextPassage % 60000;
+                    int nSeconds = (int) lTimbeBeforeNextPassage / 1000;
+                    Object[] args = { Integer.toString( nHours ), Integer.toString( nMinutes ),
+                            Integer.toString( nSeconds ) };
+                    strLabelNextDaemonPass = I18nService.getLocalizedString( strI18nKeyWait, args, locale );
+                }
+                else
+                {
+                    strLabelNextDaemonPass = I18nService.getLocalizedString( strI18nKeyDaemonRunning, locale );
+                }
+                return strLabelNextDaemonPass;
+            }
+        }
+        return null;
     }
 }

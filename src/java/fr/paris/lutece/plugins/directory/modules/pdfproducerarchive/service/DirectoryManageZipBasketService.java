@@ -50,6 +50,7 @@ import fr.paris.lutece.plugins.directory.modules.pdfproducerarchive.utils.FilesU
 import fr.paris.lutece.plugins.directory.modules.pdfproducerarchive.utils.StatusZipEnum;
 import fr.paris.lutece.plugins.directory.service.DirectoryPlugin;
 import fr.paris.lutece.portal.business.user.AdminUser;
+import fr.paris.lutece.portal.service.admin.AdminUserService;
 import fr.paris.lutece.portal.service.plugin.Plugin;
 import fr.paris.lutece.portal.service.plugin.PluginService;
 import fr.paris.lutece.portal.service.rbac.RBACService;
@@ -93,11 +94,32 @@ public class DirectoryManageZipBasketService
     public boolean addZipBasket( HttpServletRequest request, String strName, int nIdAdminUser, Plugin plugin,
         int nIdDirectory, int nIdRecord, List<Integer> listIdConfig )
     {
+        return addZipBasket( AdminUserService.getAdminUser( request ), AdminUserService.getLocale( request ), strName,
+                nIdAdminUser, plugin, nIdDirectory, nIdRecord, listIdConfig );
+    }
+
+    /**
+     * this method builds different repository to stock files and generate a PDF
+     * and a zip file of this repository
+     * @param adminUser The adminUser
+     * @param Locale The locale
+     * @param strName the name of the futur zip
+     * @param nIdAdminUser id of admin user
+     * @param plugin plugin
+     * @param nIdDirectory id of directory
+     * @param nIdRecord id of record
+     * @param listIdConfig list of id config
+     * @return true if the zip is correctly added in the database, false if the
+     *         zip already exists
+     */
+    public boolean addZipBasket( AdminUser adminUser, Locale locale, String strName, int nIdAdminUser, Plugin plugin,
+            int nIdDirectory, int nIdRecord, List<Integer> listIdConfig )
+    {
         if ( !ZipBasketHome.existsZipBasket( nIdAdminUser, plugin, nIdDirectory, nIdRecord ) )
         {
-            int nArchiveItemKey = getZipService(  )
-                                      .doGeneratePDFAndZip( request, strName, nIdAdminUser, nIdDirectory, listIdConfig,
-                    nIdRecord );
+            int nArchiveItemKey = getZipService( ).doGeneratePDFAndZip( adminUser, locale, strName, nIdAdminUser,
+                    nIdDirectory, listIdConfig,
+                            nIdRecord );
 
             if ( nArchiveItemKey == -1 )
             {
