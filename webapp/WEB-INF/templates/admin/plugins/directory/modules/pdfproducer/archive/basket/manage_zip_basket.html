@@ -1,38 +1,29 @@
-<div id="left">
-	<div class="content-box"><div class="content-box-content">
-		<h2> #i18n{module.directory.pdfproducerarchive.manage_directory.basket.manage.zip.all.export.title} </h2>
+<div class="row-fluid">
+	<div class="span4">
+	<fieldset>
+		<legend> #i18n{module.directory.pdfproducerarchive.manage_directory.basket.manage.zip.all.export.title} </legend>
 	    <#if list_zipbasket?has_content>
-			<table name="results_list" id="results_list">
+			<table name="results_list" id="results_list" class="table table-striped table-condensed">
 				<tr>
-					<th>
-						#i18n{module.directory.pdfproducerarchive.manage_directory.basket.manage.zip.name}
-					</th>
-					<th>
-						#i18n{module.directory.pdfproducerarchive.manage_directory.basket.manage.zip.status}
-					</th>
-					<th>
-						#i18n{module.directory.pdfproducerarchive.manage_directory.basket.manage.zip.actions}
-					</th>
+					<th>#i18n{module.directory.pdfproducerarchive.manage_directory.basket.manage.zip.name}</th>
+					<th>#i18n{module.directory.pdfproducerarchive.manage_directory.basket.manage.zip.status}</th>
+					<th>#i18n{module.directory.pdfproducerarchive.manage_directory.basket.manage.zip.actions}</th>
 				</tr>
-					<#list list_zipbasket as zip>
-						<#if zip.idRecord == -1>
-							<tr>
-								<td>
-									<#if zip.zipName?length &gt; 30>
+				<#list list_zipbasket as zip>
+					<#if zip.idRecord == -1>
+						<tr>
+							<td><#if zip.zipName?length &gt; 30>
 										${zip.zipName?substring(0, 30)}...
 									<#else>
 										${zip.zipName}
 									</#if>
 								</td>
 								<td>
-									<#if zip.zipStatus == '0'>
-										#i18n{module.directory.pdfproducerarchive.manage_directory.basket.manage.zip.status.pending}
+									<#if zip.zipStatus == '0'>#i18n{module.directory.pdfproducerarchive.manage_directory.basket.manage.zip.status.pending}
 									</#if>
-									<#if zip.zipStatus == '1'>
-										#i18n{module.directory.pdfproducerarchive.manage_directory.basket.manage.zip.status.inprogress}
+									<#if zip.zipStatus == '1'>#i18n{module.directory.pdfproducerarchive.manage_directory.basket.manage.zip.status.inprogress}
 									</#if>	
-									<#if zip.zipStatus == '2'>
-										#i18n{module.directory.pdfproducerarchive.manage_directory.basket.manage.zip.status.finished}
+									<#if zip.zipStatus == '2'>	#i18n{module.directory.pdfproducerarchive.manage_directory.basket.manage.zip.status.finished}
 									</#if>
 									<#if zip.zipStatus == '3'>
 										#i18n{module.directory.pdfproducerarchive.manage_directory.basket.manage.zip.status.failed}
@@ -43,11 +34,11 @@
 										<#list zip.listZipBasketAction as action>
 											<#if action.permission != 'VISUALISATION_ZIP' || zip.idRecord != -1 >
 												<#if action.permission == 'DOWNLOAD_ZIP' && zip.zipUrl?exists>										
-													<a href="${zip.zipUrl}">
+													<a class="btn btn-primary btn-small" href="${zip.zipUrl}">
 												<#else>
-													<a href="${action.url}?id_zipbasket=${zip.idZip}&amp;id_directory=${idDirectory}&amp;id_directory_record=${zip.idRecord}">
+													<a class="btn btn-primary btn-small" href="${action.url}?id_zipbasket=${zip.idZip}&amp;id_directory=${idDirectory}&amp;id_directory_record=${zip.idRecord}">
 												</#if> 										
-											  		<img src="${action.iconUrl}" alt="#i18n{${action.nameKey}}" title="#i18n{${action.descriptionKey}}">
+											  		<i class="${action.iconUrl} icon-white" title="#i18n{${action.descriptionKey}}"></i>&nbsp;#i18n{${action.nameKey}}
 											  	</a>
 											</#if>
 										</#list>
@@ -58,40 +49,36 @@
 					</#list>
 			</table>		
 		</#if>
-		<br />
-		<form action="jsp/admin/plugins/directory/ManageDirectoryRecord.jsp" method="get">
-	  		<input type="hidden" name="id_directory" value="${idDirectory}" />
-	  		<input type="hidden" name="session" value="session" />
-			<input class="button" type="submit" value="#i18n{module.directory.pdfproducerarchive.manage_directory.basket.manage.label_back}" />
+		<form class="form-inline" action="jsp/admin/plugins/directory/ManageDirectoryRecord.jsp" method="get">
+	  		<input type="hidden" name="id_directory" value="${idDirectory}">
+	  		<input type="hidden" name="session" value="session">
+			</>
+			<button class="btn btn-small" type="submit">
+				<i class="icon-remove-circle"></i>&nbsp;#i18n{module.directory.pdfproducerarchive.manage_directory.basket.manage.label_back}
+			</button>
 	  	</form>
-	</div></div>
-</div>
-<div id="right">
-	<div class="content-box">
-		<h2> #i18n{module.directory.pdfproducerarchive.manage_directory.basket.title}<#if directory?exists>: '${directory.title}'</#if></h2>
-		<div class="content-box-content">
-			<#if daemon_next_schedule?? && daemon_next_schedule?has_content>
-				<p>
-					<span class="alert">${daemon_next_schedule}</span>
-				</p>
-			</#if>
-			<#if daemon_update_status_next_schedule?? && daemon_update_status_next_schedule?has_content>
-				<p>
-					<span class="alert">${daemon_update_status_next_schedule}</span>
-				</p>
-			</#if>
+		
+	</div>
+	<div class="span8">
+		<fieldset>
+		<legend>#i18n{module.directory.pdfproducerarchive.manage_directory.basket.title}<#if directory?exists>: '${directory.title}'</#if></legend>
+				
 			<#if list_zipbasket?has_content>
-				<form action="jsp/admin/plugins/directory/modules/pdfproducer/archive/basket/ConfirmExportAllZip.jsp" method="post">
+				<form action="jsp/admin/plugins/directory/modules/pdfproducer/archive/basket/ConfirmExportAllZip.jsp" method="post" class="form-inline pull-right">
 					<input type="hidden" value="${idDirectory}" name="id_directory" />
-					<input class="button" type="submit" value="#i18n{module.directory.pdfproducerarchive.manage_directory.basket.manage.zip.all.export}" name="export_search_result" />
+					<button class="btn btn-primary btn-small" name="export_search_result" type="submit">
+						<i class="icon-download icon-white"></i>&nbsp;#i18n{module.directory.pdfproducerarchive.manage_directory.basket.manage.zip.all.export}
+					</button>
 				</form>
 				<#if permission_delete_zip>
-					<form action="jsp/admin/plugins/directory/modules/pdfproducer/archive/basket/ConfirmRemoveAllZip.jsp" method="post">
+					<form action="jsp/admin/plugins/directory/modules/pdfproducer/archive/basket/ConfirmRemoveAllZip.jsp" method="post" class="form-inline pull-right">
 						<input type="hidden" value="${idDirectory}" name="id_directory" />
-						<input class="button" type="submit" value="#i18n{module.directory.pdfproducerarchive.manage_directory.basket.manage.zip.all.remove}" name="remove_all_zip" />
+						<button class="btn btn-danger btn-small" name="remove_all_zip" type="submit">
+						<i class="icon-trash icon-white"></i>&nbsp;
+						#i18n{module.directory.pdfproducerarchive.manage_directory.basket.manage.zip.all.remove}</button>
 					</form>
 				</#if>
-				<table name="results_list" id="results_list">
+				<table name="results_list" id="results_list" class="table table-striped table-condensed">
 					<tr>
 						<th>
 							#i18n{module.directory.pdfproducerarchive.manage_directory.basket.manage.zip.id}
@@ -140,11 +127,11 @@
 											<#list zip.listZipBasketAction as action>
 												<#if action.permission != 'VISUALISATION_RECORD' || zip.idRecord != -1 >
 													<#if action.permission == 'DOWNLOAD_ZIP' && zip.zipUrl?exists>										
-														<a href="${zip.zipUrl}">
+														<a class="btn btn-primary btn-small" href="${zip.zipUrl}">
 													<#else>
-														<a href="${action.url}?id_zipbasket=${zip.idZip}&amp;id_directory=${idDirectory}&amp;id_directory_record=${zip.idRecord}">
+														<a class="btn <#if action.permission == 'DELETE_ZIP'>btn-danger<#else>btn-primary</#if> btn-small" href="${action.url}?id_zipbasket=${zip.idZip}&amp;id_directory=${idDirectory}&amp;id_directory_record=${zip.idRecord}">
 													</#if> 										
-												  		<img src="${action.iconUrl}" alt="#i18n{${action.nameKey}}" title="#i18n{${action.descriptionKey}}">
+												  		<i class="${action.iconUrl} icon-white" title="#i18n{${action.descriptionKey}}"></i>
 												  	</a>
 												</#if>
 											</#list>
@@ -154,22 +141,38 @@
 							</#if>
 						</#list>
 				</table>
-				<form action="jsp/admin/plugins/directory/modules/pdfproducer/archive/basket/ConfirmExportAllZip.jsp" method="post">
+				<form action="jsp/admin/plugins/directory/modules/pdfproducer/archive/basket/ConfirmExportAllZip.jsp" method="post" class="form-inline pull-right">
 					<input type="hidden" value="${idDirectory}" name="id_directory" />
-					<input class="button" type="submit" value="#i18n{module.directory.pdfproducerarchive.manage_directory.basket.manage.zip.all.export}" name="export_search_result" />			
+					<button class="btn btn-primary btn-small" name="export_search_result" type="submit">
+						<i class="icon-download icon-white"></i>&nbsp;#i18n{module.directory.pdfproducerarchive.manage_directory.basket.manage.zip.all.export}
+					</button>
 				</form>
 				<#if permission_delete_zip>
-					<form action="jsp/admin/plugins/directory/modules/pdfproducer/archive/basket/ConfirmRemoveAllZip.jsp" method="post">
+					<form action="jsp/admin/plugins/directory/modules/pdfproducer/archive/basket/ConfirmRemoveAllZip.jsp" method="post" class="form-inline pull-right">
 						<input type="hidden" value="${idDirectory}" name="id_directory" />
-						<input class="button" type="submit" value="#i18n{module.directory.pdfproducerarchive.manage_directory.basket.manage.zip.all.remove}" name="remove_all_zip" />
+						<button class="btn btn-danger btn-small" name="remove_all_zip" type="submit">
+						<i class="icon-trash icon-white"></i>&nbsp;
+						#i18n{module.directory.pdfproducerarchive.manage_directory.basket.manage.zip.all.remove}</button>
 					</form>
 				</#if>
 			<#else>
-				<p>
+				<div class="alert alert-error">
+					<i class="icon-shopping-cart"></i>&nbsp;
 					#i18n{module.directory.pdfproducerarchive.manage_directory.basket.manage.zip.empty}
-				</p>
-				<br />
+				</div>
 			</#if>
-		</div>
+			
+			<#if daemon_next_schedule?? && daemon_next_schedule?has_content>
+				<div class="label label-info pull-left">
+					<i class="icon-time icon-white"></i>&nbsp; ${daemon_next_schedule}
+				</div>
+				</#if>
+				<#if daemon_update_status_next_schedule?? && daemon_update_status_next_schedule?has_content>
+				<div class="label label-info pull-left" style="margin-top:2px;">
+					<i class="icon-time icon-white"></i>&nbsp; ${daemon_update_status_next_schedule}
+				</div>
+				</#if>
+			
+		</fieldset>
 	</div>
 </div>

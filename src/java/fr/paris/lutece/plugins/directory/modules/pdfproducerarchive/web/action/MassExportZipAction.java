@@ -74,7 +74,7 @@ public class MassExportZipAction extends AbstractPluginAction<DirectoryAdminSear
     private static final String JSP_CONFIRM_ADD_ZIP_BASKET = "jsp/admin/plugins/directory/modules/pdfproducer/archive/basket/ConfirmAddZipToBasket.jsp";
 
     // PARAMETERS
-    private static final String PARAMETER_MASS_ZIP_BASKET_ACTION = "mass_export_zip.x";
+    private static final String PARAMETER_MASS_ZIP_BASKET_ACTION = "mass_export_zip";
 
     // MARKS
     private static final String MARK_PERMISSION_GENERATE_ZIP = "permission_generate_zip";

@@ -73,7 +73,7 @@ public class ZipBasketAction extends AbstractPluginAction<DirectoryAdminSearchFi
 
     // PARAMETERS
     private static final String PARAMETER_ID_DIRECTORY = "id_directory";
-    private static final String PARAMETER_ZIP_BASKET_ACTION = "zip_basket.x";
+    private static final String PARAMETER_ZIP_BASKET_ACTION = "zip_basket";
 
     // MARKS
     private static final String MARK_PERMISSION_GENERATE_ZIP = "permission_generate_zip";
