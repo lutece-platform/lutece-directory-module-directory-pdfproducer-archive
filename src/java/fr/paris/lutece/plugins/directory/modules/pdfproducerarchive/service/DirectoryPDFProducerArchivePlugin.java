@@ -51,7 +51,7 @@ public class DirectoryPDFProducerArchivePlugin extends PluginDefaultImplementati
     public static final String DIRECTORY_ACTION_NAME_KEY = "module.directory.pdfproducerarchive.actions.extractzip.name";
     public static final String DIRECTORY_ACTION_DESCRIPTION = "module.directory.pdfproducerarchive.actions.extractzip.description";
     public static final String DIRECTORY_ACTION_URL = "jsp/admin/plugins/directory/modules/pdfproducer/archive/basket/ConfirmAddZipToBasket.jsp";
-    public static final String DIRECTORY_ACTION_URL_ICON_PDF = "images/admin/skin/plugins/directory/modules/pdfproducer/archive/actions/zipbasket/addzipbasket.png";
+    public static final String DIRECTORY_ACTION_URL_ICON_PDF = "icon-shopping-cart";
     public static final String DIRECTORY_ACTION_PERMISSION = "ADDZIPBASKET";
     public static final int DIRECTORY_ACTION_STATE_0 = 0;
     public static final int DIRECTORY_ACTION_STATE_1 = 1;
