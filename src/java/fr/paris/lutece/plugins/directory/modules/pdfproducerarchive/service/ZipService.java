@@ -129,7 +129,7 @@ public final class ZipService
         try
         {
             os = new FileOutputStream( new File( strPathFilesGenerate + "/" + strDirectoryName + EXTENSION_FILE_PDF ) );
-            PDFUtils.doCreateDocumentPDF( adminUser, locale, strDirectoryName, os, nIdRecord, listIdEntryConfig );
+            PDFUtils.doCreateDocumentPDF( adminUser, locale, strDirectoryName, os, nIdRecord, listIdEntryConfig, true );
         }
         catch ( FileNotFoundException e )
         {
