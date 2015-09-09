@@ -1,6 +1,3 @@
-/*==============================================================*/
-/*	Init  table directory_zip_basket_action						*/
-/*==============================================================*/
 REPLACE INTO directory_zip_basket_action VALUES (1, 'module.directory.pdfproducerarchive.actions.title.visualisation', 'module.directory.pdfproducerarchive.actions.title.visualisation', 'jsp/admin/plugins/directory/DoVisualisationRecord.jsp', 'fa fa-search', 'VISUALISATION_RECORD', 0);
 REPLACE INTO directory_zip_basket_action VALUES (2, 'module.directory.pdfproducerarchive.actions.title.visualisation', 'module.directory.pdfproducerarchive.actions.title.visualisation', 'jsp/admin/plugins/directory/DoVisualisationRecord.jsp', 'fa fa-search', 'VISUALISATION_RECORD', 1);
 REPLACE INTO directory_zip_basket_action VALUES (3, 'module.directory.pdfproducerarchive.actions.title.visualisation', 'module.directory.pdfproducerarchive.actions.title.visualisation', 'jsp/admin/plugins/directory/DoVisualisationRecord.jsp', 'fa fa-search', 'VISUALISATION_RECORD', 2);
