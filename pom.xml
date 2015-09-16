@@ -10,7 +10,7 @@
     <groupId>fr.paris.lutece.plugins</groupId>
     <artifactId>module-directory-pdfproducer-archive</artifactId>
     <packaging>lutece-plugin</packaging>
-    <version>2.1.0</version>
+    <version>2.1.1-SNAPSHOT</version>
     <name>Lutece directory pdfproducer archive module</name>
 	
     <repositories>
@@ -60,7 +60,7 @@
         <connection>scm:git:https://github.com/lutece-platform/lutece-directory-module-directory-pdfproducer-archive.git</connection>
         <developerConnection>scm:git:https://github.com/lutece-platform/lutece-directory-module-directory-pdfproducer-archive.git</developerConnection>
         <url>https://github.com/lutece-platform/lutece-directory-module-directory-pdfproducer-archive.git</url>
-      <tag>lutece-directory-module-directory-pdfproducer-archive-2.1.0</tag>
+      <tag>HEAD</tag>
   </scm>
 	
 </project>
